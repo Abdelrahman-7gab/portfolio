@@ -17,15 +17,16 @@
 
 .name {
   font-size: 5rem;
-  font-weight: 700;
+  font-weight: 400;
   margin: 0;
   color: #c15905;
   cursor: default;
-  font-family: 'Homenaje', sans-serif;
+  font-family: 'Teko', sans-serif;
   letter-spacing: -0.02em;
   user-select: none;
   display: flex;
-  gap: 0.1em;
+  gap: 0.01em;
+  max-height: 100px;
 
   .char {
     display: inline-block;
@@ -34,7 +35,7 @@
     transform-origin: bottom center;
 
     &.space {
-      width: 0.3em;
+      width: 0.2em;
     }
 
   }
@@ -45,14 +46,102 @@
 }
 
 .role {
-  font-size: 2rem;
-  margin-top: 1rem;
+  font-size: 2.5rem;
   color: #888;
-  font-weight: 300;
-  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-family: 'Amatic SC', sans-serif;
   letter-spacing: -0.01em;
+  min-height: 2.5rem;
+
+  // Add monospace feel for typing effect
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 
   @media (max-width: 768px) {
     font-size: 1.5rem;
+    min-height: 1.5rem;
   }
+}
+
+.social-icons {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.icon-link {
+  color: inherit;
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+  will-change: transform;
+
+  &:hover {
+    color: #c15905; // Using your orange color instead of blue
+  }
+}
+
+// Add a subtle glow effect to icons on hover
+.icon-link:hover {
+  filter: drop-shadow(0 0 10px rgba(193, 89, 5, 0.5));
+}
+
+.particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+// Custom cursor styles
+.cursor,
+.cursor-trailer {
+  pointer-events: none;
+  position: fixed;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  transition: transform 0.1s ease;
+}
+
+.cursor {
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.cursor-trailer {
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  border: 2px solid #c15905;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s ease, height 0.2s ease;
+}
+
+// Hover effects
+.cursor.cursor-hover {
+  transform: translate(-50%, -50%) scale(1.5);
+  background-color: #c15905;
+}
+
+.cursor-trailer.cursor-hover {
+  width: 40px;
+  height: 40px;
+  border-color: #c15905;
+}
+
+// Hide default cursor on interactive elements
+a, .char {
+  cursor: none;
+}
+
+// Make sure main content is above canvas but below cursor
+main {
+  position: relative;
+  z-index: 2;
+  cursor: none;
 }

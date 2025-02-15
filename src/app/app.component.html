@@ -1,3 +1,6 @@
+<div class="cursor" #cursor></div>
+<div class="cursor-trailer" #cursorTrailer></div>
+<canvas #particleCanvas class="particle-canvas"></canvas>
 <main>
   <div class="hero">
     <h1 #nameText class="name">
@@ -7,7 +10,21 @@
         [class.space]="char === ' '"
       >{{ char }}</span>
     </h1>
-    <p #roleText class="role">Full Stack Developer</p>
+    <p #roleText class="role">{{ displayedRole }}</p>
+    <div #socialIcons class="social-icons">
+      <a href="https://github.com/Abdelrahman-7gab" target="_blank" class="icon-link">
+        <fa-icon [icon]="faGithub"></fa-icon>
+      </a>
+      <a href="https://www.linkedin.com/in/abdelrahman-hegab-4779aa1a6/" target="_blank" class="icon-link">
+        <fa-icon [icon]="faLinkedin"></fa-icon>
+      </a>
+      <a href="mailto:me@abdelrahman-hegab.com" class="icon-link">
+        <fa-icon [icon]="faEnvelope"></fa-icon>
+      </a>
+      <a href="/assets/resume.pdf" target="_blank" class="icon-link">
+        <fa-icon [icon]="faFileAlt"></fa-icon>
+      </a>
+    </div>
   </div>
   <router-outlet />
 </main>
