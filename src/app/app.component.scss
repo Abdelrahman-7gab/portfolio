@@ -1,0 +1,58 @@
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  background: #0a0a0a;
+  color: #ffffff;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.name {
+  font-size: 5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #c15905;
+  cursor: default;
+  font-family: 'Homenaje', sans-serif;
+  letter-spacing: -0.02em;
+  user-select: none;
+  display: flex;
+  gap: 0.1em;
+
+  .char {
+    display: inline-block;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    transform-origin: bottom center;
+
+    &.space {
+      width: 0.3em;
+    }
+
+  }
+
+  @media (max-width: 768px) {
+    font-size: 3rem;
+  }
+}
+
+.role {
+  font-size: 2rem;
+  margin-top: 1rem;
+  color: #888;
+  font-weight: 300;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+}
