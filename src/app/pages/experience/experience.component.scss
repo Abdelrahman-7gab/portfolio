@@ -1,0 +1,129 @@
+.experience-container {
+  min-height: 100vh;
+  padding: 2rem;
+  background: #0a0a0a;
+  color: #ffffff;
+}
+
+.title {
+  text-align: center;
+  font-size: 3rem;
+  margin-bottom: 4rem;
+  color: #c15905;
+  font-family: 'Teko', sans-serif;
+}
+
+.cards-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.experience-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(193, 89, 5, 0.1);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateX(10px);
+    border-color: rgba(193, 89, 5, 0.3);
+  }
+}
+
+.card-content {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .company {
+    font-size: 2rem;
+    color: #c15905;
+    margin: 0;
+    font-family: 'Teko', sans-serif;
+  }
+
+  .period {
+    color: #888;
+    font-size: 0.9rem;
+  }
+
+  .role {
+    font-size: 1.5rem;
+    color: #fff;
+    margin: 0 0 1.5rem 0;
+    font-weight: 400;
+  }
+
+  .description {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+
+    li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+
+      &::before {
+        content: '•';
+        color: #c15905;
+        position: absolute;
+        left: 0;
+      }
+    }
+  }
+
+  .technologies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tech-tag {
+    background: rgba(193, 89, 5, 0.1);
+    color: #c15905;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(193, 89, 5, 0.2);
+  }
+}
+
+@media (max-width: 768px) {
+  .experience-container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .experience-card {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .card-content {
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .company {
+      font-size: 1.75rem;
+    }
+
+    .role {
+      font-size: 1.25rem;
+    }
+  }
+}

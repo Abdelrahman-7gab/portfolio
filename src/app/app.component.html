@@ -1,8 +1,8 @@
 <div class="cursor" #cursor></div>
 <div class="cursor-trailer" #cursorTrailer></div>
-<canvas #particleCanvas class="particle-canvas"></canvas>
+<div class="matrix-container"></div>
 <main>
-  <div class="hero">
+  <section class="hero">
     <h1 #nameText class="name">
       <span
         *ngFor="let char of nameChars; let i = index"
@@ -25,6 +25,97 @@
         <fa-icon [icon]="faFileAlt"></fa-icon>
       </a>
     </div>
-  </div>
-  <router-outlet />
+  </section>
+
+  <section class="experience-section">
+    <h2 class="section-title">Experience</h2>
+    <div class="cards-container">
+      <div
+        *ngFor="let exp of experiences"
+        class="experience-card"
+        [attr.data-speed]="0.5"
+      >
+        <div class="card-content">
+          <div class="header">
+            <h3 class="company">{{ exp.company }}</h3>
+            <span class="period">{{ exp.period }}</span>
+          </div>
+          <h4 class="role">{{ exp.role }}</h4>
+          <ul class="description">
+            <li *ngFor="let point of exp.description">{{ point }}</li>
+          </ul>
+          <div class="technologies">
+            <span
+              *ngFor="let tech of exp.technologies"
+              class="tech-tag"
+              [attr.data-tech]="tech"
+            >{{ tech }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="projects-section">
+    <h2 class="section-title">Featured Projects</h2>
+    <div class="projects-container">
+      <div *ngFor="let project of projects; let i = even"
+           class="project-card"
+           [class.project-right]="i"
+           [attr.data-scroll]="true">
+        <div class="project-content">
+          <div class="project-text">
+            <h3 class="project-title">{{ project.title }}</h3>
+            <p class="project-description">{{ project.description }}</p>
+            <ul class="project-features">
+              <li *ngFor="let feature of project.features">{{ feature }}</li>
+            </ul>
+            <div class="project-technologies">
+              <span *ngFor="let tech of project.technologies"
+                    class="tech-tag">{{ tech }}</span>
+            </div>
+            <div class="project-links">
+              <a *ngIf="project.githubUrl"
+                 [href]="project.githubUrl"
+                 target="_blank"
+                 class="project-link github">
+                <fa-icon [icon]="faGithub"></fa-icon>
+                <span>Source Code</span>
+              </a>
+              <a *ngIf="project.liveUrl"
+                 [href]="project.liveUrl"
+                 target="_blank"
+                 class="project-link live">
+                <fa-icon [icon]="faExternalLink"></fa-icon>
+                <span>Live Demo</span>
+              </a>
+            </div>
+          </div>
+          <div class="project-image">
+            <img [src]="project.image" [alt]="project.title">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-section">
+    <h2 class="section-title">Get In Touch</h2>
+    <div class="contact-container">
+      <div class="contact-info">
+        <a href="mailto:me@abdelrahman-hegab.com" class="contact-item">
+          <fa-icon [icon]="faEnvelope"></fa-icon>
+          <span>me&#64;abdelrahman-hegab.com</span>
+        </a>
+        <span href="tel:+201234567890" class="contact-item">
+          <fa-icon [icon]="faPhone"></fa-icon>
+          <span>(+20)1129347201</span>
+        </span>
+      </div>
+    </div>
+  </section>
 </main>
+
+<footer class="footer">
+  <p>© {{ currentYear }} Built with <span class="heart">♥</span> by Abdelrahman Hegab</p>
+</footer>
