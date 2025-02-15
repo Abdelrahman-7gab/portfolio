@@ -114,7 +114,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       duration: 1.5,
       stagger: 0.2,
       delay: 2
-    }, '-=1');
+    }, '-=1.9');
 
     // Wait for initial animations to complete
     setTimeout(() => {
