@@ -27,13 +27,13 @@ export class CursorService {
     gsap.to(cursor, {
       x: event.clientX,
       y: event.clientY,
-      duration: 0.2
+      duration: 0.1
     });
 
     gsap.to(trailer, {
       x: event.clientX,
       y: event.clientY,
-      duration: 0.5
+      duration: 0.3
     });
 
     const target = event.target as HTMLElement;
