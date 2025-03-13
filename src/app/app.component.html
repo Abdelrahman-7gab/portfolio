@@ -82,6 +82,13 @@
                 <fa-icon [icon]="faGithub"></fa-icon>
                 <span>Source Code</span>
               </a>
+              <a *ngIf="project.npmUrl"
+                 [href]="project.npmUrl"
+                 target="_blank"
+                 class="project-link npm">
+                <fa-icon [icon]="faNpm"></fa-icon>
+                <span>NPM Package</span>
+              </a>
               <a *ngIf="project.liveUrl"
                  [href]="project.liveUrl"
                  target="_blank"

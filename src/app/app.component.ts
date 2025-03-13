@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit, AfterViewInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import { faGithub, faLinkedin, faNpm } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope, faFileAlt, faExternalLinkAlt, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { CursorService } from './services/cursor.service';
 import { AnimationService } from './services/animation.service';
@@ -36,6 +36,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   faFileAlt = faFileAlt;
   faExternalLink = faExternalLinkAlt;
   faPhone = faPhone;
+  faNpm = faNpm;
 
   experiences = experiences;
   projects = projects;
