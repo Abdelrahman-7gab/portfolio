@@ -487,6 +487,7 @@ main {
 
 .project-links {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-top: 2rem;
 
@@ -501,6 +502,8 @@ main {
     text-decoration: none;
     transition: all 0.3s ease;
     border: 1px solid rgba(193, 89, 5, 0.2);
+    white-space: nowrap;
+    font-size: 0.9rem;
 
     &:hover {
       background: rgba(193, 89, 5, 0.2);
@@ -511,7 +514,17 @@ main {
     fa-icon {
       font-size: 1.1rem;
     }
+
+    @media (max-width: 768px) {
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+
+      fa-icon {
+        font-size: 1rem;
+      }
+    }
   }
+
 }
 
 @keyframes slideUp {
@@ -534,14 +547,27 @@ main {
     .project-text {
       direction: ltr !important;
     }
+
+    .project-image {
+      order: -1;
+    }
   }
 
   .project-title {
     font-size: 2rem;
   }
 
+  .project-description {
+    font-size: 1rem;
+  }
+
+  .project-features li {
+    font-size: 0.95rem;
+  }
+
   .project-card {
     margin: 4rem 0;
+    padding: 1.2rem;
   }
 
   .projects-section {
