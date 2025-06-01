@@ -81,7 +81,7 @@ export class AnimationService {
 
   initializeScrollAnimations(cards: HTMLElement[]) {
     cards.forEach((card, index) => {
-      const startX = index % 2 === 0 ? -800 : 800;
+      const startX = index % 2 === 0 ? -300 : 300;
 
       this.createCardAnimation(card, startX);
       this.setupCardHoverEffects(card);
@@ -91,52 +91,41 @@ export class AnimationService {
   }
 
   private createCardAnimation(card: HTMLElement, startX: number) {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: card,
-        start: 'top bottom',
-        end: '+=70%',
-        toggleActions: 'play none none reverse',
-        scrub: 1,
-      }
-    });
+    // Experience cards animation (horizontal) - tied to scroll position
+    const isMobile = window.innerWidth <= 768;
 
-    tl.fromTo(card,
+    gsap.fromTo(card,
       {
         opacity: 0,
-        x: startX,
-        y: 0,
-        rotationX: 15,
-        scale: 0.95,
-        transformOrigin: '50% 100%'
+        x: startX * 0.5, // Balanced movement distance
+        y: 30, // Moderate vertical movement
+        scale: 0.92 // Moderate scale change
       },
       {
         opacity: 1,
         x: 0,
         y: 0,
-        rotationX: 0,
         scale: 1,
-        duration: 1,
-        ease: 'power2.out'
+        ease: 'none',
+        scrollTrigger: {
+          trigger: card,
+          start: isMobile ? 'top bottom+=50' : 'top bottom+=100', // Start earlier on mobile
+          end: isMobile ? 'top center-=50' : 'top center',       // End earlier on mobile
+          scrub: 0.5,
+          toggleActions: 'play reverse play reverse'
+        }
       }
     );
   }
 
   private setupCardHoverEffects(card: HTMLElement) {
-    gsap.to(card, {
-      paused: true,
-      scale: 1.02,
-      boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
-      y: -5,
-      duration: 0.3,
-      ease: 'power2.out'
-    });
-
+    // Simple, high-performance hover effects
     card.addEventListener('mouseenter', () => {
       gsap.to(card, {
         scale: 1.02,
-        boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
-        y: -5,
+        y: -8,
+        boxShadow: '0 12px 25px rgba(193, 89, 5, 0.15)',
+        borderColor: 'rgba(193, 89, 5, 0.4)',
         duration: 0.3,
         ease: 'power2.out'
       });
@@ -145,8 +134,9 @@ export class AnimationService {
     card.addEventListener('mouseleave', () => {
       gsap.to(card, {
         scale: 1,
-        boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
         y: 0,
+        boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
         duration: 0.3,
         ease: 'power2.out'
       });
@@ -165,14 +155,13 @@ export class AnimationService {
       {
         opacity: 1,
         y: 0,
-        duration: 1,
+        duration: 0.8,
         ease: 'power2.out',
         scrollTrigger: {
           trigger: sectionTitle,
           start: 'top bottom-=100',
           end: 'top center',
-          toggleActions: 'play none none reverse',
-          scrub: 1
+          toggleActions: 'play none none reverse'
         }
       }
     );

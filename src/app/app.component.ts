@@ -79,19 +79,29 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       this.animationService.initializeMatrixEffect(matrixContainer);
     }
 
-    // Initialize project scroll animations
+    // Initialize project scroll animations (vertical) - tied to scroll position
     const projectCards = Array.from(document.querySelectorAll<HTMLElement>('.project-card'));
     projectCards.forEach((card, index) => {
-      gsap.from(card, {
+      const startY = index % 2 === 0 ? -60 : 60; // Balanced vertical movement
+      const isMobile = window.innerWidth <= 768;
+
+      gsap.fromTo(card, {
         opacity: 0,
-        y: 100,
-        duration: 1,
+        x: 0, // No horizontal movement
+        y: startY, // Moderate vertical movement
+        scale: 0.92 // Moderate scale change
+      }, {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        scale: 1,
+        ease: 'none',
         scrollTrigger: {
           trigger: card,
-          start: 'top bottom-=100',
-          end: 'top center',
-          toggleActions: 'play none none reverse',
-          scrub: 1
+          start: isMobile ? 'top bottom+=50' : 'top bottom+=100', // Start earlier on mobile
+          end: isMobile ? 'top center-=50' : 'top center',       // End earlier on mobile
+          scrub: 0.5,
+          toggleActions: 'play reverse play reverse'
         }
       });
     });

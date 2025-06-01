@@ -87,7 +87,7 @@ export class ExperienceComponent implements OnInit {
         y: 0,
         scale: 1,
         duration: 1,
-        ease: 'power3.out',
+        ease: 'power0',
         stagger: {
           amount: 0.3,
           from: 'start'
