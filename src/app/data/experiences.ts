@@ -3,37 +3,39 @@ import { Experience } from '../models/experience.model';
 export const experiences: Experience[] = [
   {
     company: 'Spare Payments',
-    role: 'Fullstack Software Developer',
+    role: 'Full-Stack Software Engineer',
+    location: 'Cairo, Egypt',
     period: 'Mar 2024 - Present',
     description: [
-      'Developing a fintech digital payments platform using Angular, Ionic, Node.js, and MySQL with Redis caching',
-      'Contributing to microservices architecture implementation for handling high-volume financial transactions',
-      'Designing and implementing secure APIs with robust data integrity and privacy measures',
-      'Optimizing database performance through efficient MySQL integration and query optimization'
+      'Shipped payment features used by 70K+ users across 200+ merchants.',
+      'Built payment, refund, gateway, and partner integration flows.',
+      'Delivered financial reporting, exports, and reconciliation checks.',
+      'Added OpenTelemetry tracing across HTTP, MySQL, and Redis.',
+      'Reworked multi-printer support for 1,400+ merchant devices.'
     ],
-    technologies: ['Angular', 'Ionic', 'Node.js', 'MySQL', 'Redis', 'Microservices', 'Mocha']
+    technologies: ['Angular', 'Ionic', 'Node.js', 'MySQL', 'Redis', 'OpenTelemetry', 'Electron']
   },
   {
     company: 'Alfan',
-    role: 'Frontend Developer',
+    role: 'Frontend Software Engineer',
+    location: 'UAE, Remote',
     period: 'Jan 2023 - Apr 2024',
     description: [
-      'Built responsive and performant user interfaces using React and modern frontend technologies',
-      'Collaborated closely with design teams to implement intuitive and visually appealing user experiences',
-      'Developed automation scripts to streamline development workflows and reduce manual processes',
-      'Implemented responsive design patterns ensuring cross-device compatibility'
+      'Built reusable, responsive React interfaces for a creator monetization platform.',
+      'Built a dashboard for cross-platform creator earnings.',
+      'Refined product interactions and automated repetitive workflows.'
     ],
-    technologies: ['React', 'TypeScript', 'Node.js', 'Python', 'Selenium']
+    technologies: ['React', 'TypeScript', 'Redux', 'Python', 'Selenium']
   },
   {
     company: 'Tensorgraph.io',
-    role: 'Junior Software Engineer',
+    role: 'Software Engineer (Part-Time)',
+    location: 'Maadi, Egypt',
     period: 'Aug 2021 - Jan 2023',
     description: [
-      'Managed full-cycle software development from requirements gathering to deployment',
-      'Developed and optimized RESTful APIs using Node.js and PostgreSQL',
-      'Contributed to an intelligent recommendation system implementation using TensorFlow',
-      'Collaborated in an agile environment to deliver high-quality software solutions'
+      'Built Node.js/PostgreSQL APIs for recommendations and analytics.',
+      'Designed the responsive chat experience for the recommendation bot.',
+      'Integrated TensorFlow recommendations from requirements to deployment.'
     ],
     technologies: ['Node.js', 'Angular', 'PostgreSQL', 'TensorFlow', 'Socket.io']
   }

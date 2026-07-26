@@ -113,7 +113,6 @@ export class AnimationService {
       const startX = index % 2 === 0 ? -300 : 300;
 
       this.createCardAnimation(card, startX);
-      this.setupCardHoverEffects(card);
     });
 
     this.initializeSectionTitleAnimation();
@@ -141,41 +140,15 @@ export class AnimationService {
           start: isMobile ? 'top bottom+=50' : 'top bottom+=100', // Start earlier on mobile
           end: isMobile ? 'top center-=50' : 'top center',       // End earlier on mobile
           scrub: 0.5,
-          toggleActions: 'play reverse play reverse'
+          toggleActions: 'play reverse play reverse',
+          onUpdate: self => {
+            card.classList.toggle(
+              'is-scroll-animating',
+              self.progress > 0 && self.progress < 1
+            );
+          }
         }
       }
-    );
-  }
-
-  private setupCardHoverEffects(card: HTMLElement) {
-    // Simple, high-performance hover effects
-    const handleMouseEnter = () => {
-      gsap.to(card, {
-        scale: 1.02,
-        y: -8,
-        boxShadow: '0 12px 25px rgba(193, 89, 5, 0.15)',
-        borderColor: 'rgba(193, 89, 5, 0.4)',
-        duration: 0.3,
-        ease: 'power2.out'
-      });
-    };
-
-    const handleMouseLeave = () => {
-      gsap.to(card, {
-        scale: 1,
-        y: 0,
-        boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        duration: 0.3,
-        ease: 'power2.out'
-      });
-    };
-
-    card.addEventListener('mouseenter', handleMouseEnter);
-    card.addEventListener('mouseleave', handleMouseLeave);
-    this.cleanupFunctions.push(
-      () => card.removeEventListener('mouseenter', handleMouseEnter),
-      () => card.removeEventListener('mouseleave', handleMouseLeave)
     );
   }
 
@@ -239,7 +212,7 @@ export class AnimationService {
         element.style.position = 'absolute';
         element.style.left = `${x * cellSize}px`;
         element.style.top = `${y * cellSize}px`;
-        element.style.fontFamily = 'Fira Code, monospace';
+        element.style.fontFamily = 'JetBrains Mono, monospace';
         element.style.fontSize = '14px';
         element.style.color = '#c15905';
         element.style.opacity = '0.2';

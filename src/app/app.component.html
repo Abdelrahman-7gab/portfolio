@@ -1,8 +1,46 @@
 <div class="cursor" #cursor></div>
 <div class="cursor-trailer" #cursorTrailer></div>
 <div class="matrix-container"></div>
+
+<nav
+  #siteNav
+  class="site-nav"
+  [class.is-collapsed]="isNavCollapsed"
+  [class.is-returning]="isNavReturning"
+  aria-label="Primary navigation"
+>
+  <a class="nav-mark" href="#top" aria-label="Back to top">AH</a>
+  <div *ngIf="!isNavCollapsed" id="primary-nav-links" class="nav-links">
+    <a href="#experience">Experience</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <button
+    type="button"
+    class="nav-toggle"
+    aria-controls="primary-nav-links"
+    [attr.aria-expanded]="!isNavCollapsed"
+    [attr.aria-label]="isNavCollapsed ? 'Expand navigation' : 'Collapse navigation'"
+    [disabled]="isNavReturning"
+    (click)="toggleNavigation()"
+  >
+    <fa-icon [icon]="isNavCollapsed ? faChevronRight : faChevronLeft"></fa-icon>
+  </button>
+  <button
+    *ngIf="isNavCollapsed"
+    type="button"
+    class="nav-drag-handle"
+    aria-label="Move collapsed navigation. Drag or use the arrow keys."
+    [disabled]="isNavReturning"
+    (pointerdown)="startNavigationDrag($event)"
+    (keydown)="moveNavigationWithKeyboard($event)"
+  >
+    <fa-icon [icon]="faEllipsis"></fa-icon>
+  </button>
+</nav>
+
 <main>
-  <section class="hero">
+  <section id="top" class="hero">
     <h1 #nameText class="name">
       <span
         *ngFor="let char of nameChars; let i = index"
@@ -11,6 +49,14 @@
       >{{ char }}</span>
     </h1>
     <p #roleText class="role">{{ displayedRole }}</p>
+    <div class="hero-summary">
+      <p class="hero-intro">
+        I build reliable fintech systems and web products that hold up in production.
+      </p>
+      <p class="hero-focus">
+        Payment flows · Production observability · Merchant hardware integrations
+      </p>
+    </div>
     <div #socialIcons class="social-icons">
       <a href="https://github.com/Abdelrahman-7gab"
          target="_blank"
@@ -41,7 +87,7 @@
     </div>
   </section>
 
-  <section class="experience-section">
+  <section id="experience" class="experience-section">
     <h2 class="section-title">Experience</h2>
     <div class="cards-container">
       <div
@@ -52,7 +98,10 @@
         <div class="card-content">
           <div class="header">
             <h3 class="company">{{ exp.company }}</h3>
-            <span class="period">{{ exp.period }}</span>
+            <div class="experience-meta">
+              <span class="location">{{ exp.location }}</span>
+              <span class="period">{{ exp.period }}</span>
+            </div>
           </div>
           <h4 class="role">{{ exp.role }}</h4>
           <ul class="description">
@@ -70,7 +119,7 @@
     </div>
   </section>
 
-  <section class="projects-section">
+  <section id="projects" class="projects-section">
     <h2 class="section-title">Featured Projects</h2>
     <div class="projects-container">
       <div *ngFor="let project of projects; let i = even"
@@ -124,18 +173,50 @@
     </div>
   </section>
 
-  <section class="contact-section">
-    <h2 class="section-title">Get In Touch</h2>
-    <div class="contact-container">
-      <div class="contact-info">
-        <a href="mailto:me@abdelrahman-hegab.com" class="contact-item">
+  <section id="contact" class="contact-section" aria-labelledby="contact-title">
+    <div class="contact-panel">
+      <div class="contact-copy">
+        <p class="contact-kicker">
+          <span class="status-dot" aria-hidden="true"></span>
+          Open to interesting opportunities
+        </p>
+        <h2 id="contact-title" class="section-title">Get In Touch</h2>
+        <p class="contact-intro">
+          Have a role, project, or product idea in mind? Send me the context and let’s start a
+          conversation.
+        </p>
+      </div>
+
+      <div class="contact-actions">
+        <a href="mailto:me@abdelrahman-hegab.com" class="contact-primary">
           <fa-icon [icon]="faEnvelope"></fa-icon>
-          <span>me&#64;abdelrahman-hegab.com</span>
+          <span>
+            <small>Email me</small>
+            <strong>me&#64;abdelrahman-hegab.com</strong>
+          </span>
         </a>
-        <a href="tel:+201129347201" class="contact-item">
-          <fa-icon [icon]="faPhone"></fa-icon>
-          <span>(+20)1129347201</span>
-        </a>
+
+        <div class="contact-links">
+          <a href="tel:+201129347201" class="contact-item">
+            <fa-icon [icon]="faPhone"></fa-icon>
+            <span>
+              <small>Call</small>
+              <strong>(+20) 112 934 7201</strong>
+            </span>
+          </a>
+          <a
+            href="https://www.linkedin.com/in/abdelrahman-hegab-4779aa1a6/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-item"
+          >
+            <fa-icon [icon]="faLinkedin"></fa-icon>
+            <span>
+              <small>Connect</small>
+              <strong>LinkedIn</strong>
+            </span>
+          </a>
+        </div>
       </div>
     </div>
   </section>

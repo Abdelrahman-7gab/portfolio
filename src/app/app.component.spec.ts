@@ -46,8 +46,39 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
+    const contact = element.querySelector('.contact-section');
 
-    expect(element.querySelector('.contact-item[href^="mailto:"]')).not.toBeNull();
-    expect(element.querySelector('.contact-item[href="tel:+201129347201"]')).not.toBeNull();
+    expect(contact?.querySelector('a[href^="mailto:"]')).not.toBeNull();
+    expect(contact?.querySelector('a[href="tel:+201129347201"]')).not.toBeNull();
+  });
+
+  it('collapses and expands the primary navigation', (done) => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    const toggle = element.querySelector<HTMLButtonElement>('.nav-toggle');
+
+    toggle?.click();
+    fixture.detectChanges();
+
+    const navigation = element.querySelector<HTMLElement>('.site-nav');
+    expect(navigation?.classList.contains('is-collapsed')).toBeTrue();
+    expect(element.querySelector('.nav-links')).toBeNull();
+    expect(element.querySelector('.nav-drag-handle')).not.toBeNull();
+
+    navigation?.style.setProperty('left', '100px');
+    navigation?.style.setProperty('top', '120px');
+    navigation?.style.setProperty('transform', 'none');
+
+    toggle?.click();
+    window.setTimeout(() => {
+      fixture.detectChanges();
+
+      expect(element.querySelector('.nav-links')).not.toBeNull();
+      expect(navigation?.style.left).toBe('');
+      expect(navigation?.style.top).toBe('');
+      expect(navigation?.style.transform).toBe('');
+      done();
+    }, 400);
   });
 });

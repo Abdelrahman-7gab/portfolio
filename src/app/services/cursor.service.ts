@@ -20,11 +20,11 @@ export class CursorService {
     this.enabled = true;
     document.body.style.cursor = 'none';
     this.ngZone.runOutsideAngular(() => {
-      window.addEventListener('mousemove', this.handleMouseMove);
+      window.addEventListener('pointermove', this.handleMouseMove);
     });
   }
 
-  readonly handleMouseMove = (event: MouseEvent) => {
+  readonly handleMouseMove = (event: PointerEvent) => {
     if (!this.enabled || !this.cursorRef || !this.cursorTrailerRef) return;
 
     this.mouse.x = event.clientX;
@@ -46,7 +46,7 @@ export class CursorService {
     });
 
     const target = event.target as HTMLElement;
-    if (target.closest('a') || target.closest('.char')) {
+    if (target.closest('a, button, .char')) {
       cursor.classList.add('cursor-hover');
       trailer.classList.add('cursor-hover');
     } else {
@@ -64,7 +64,7 @@ export class CursorService {
         this.cursorTrailerRef.nativeElement
       ]);
     }
-    window.removeEventListener('mousemove', this.handleMouseMove);
+    window.removeEventListener('pointermove', this.handleMouseMove);
     document.body.style.cursor = 'auto';
     this.cursorRef = undefined;
     this.cursorTrailerRef = undefined;
