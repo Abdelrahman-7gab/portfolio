@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 
@@ -33,10 +33,30 @@ export class AnimationService {
   private experienceContainer?: HTMLElement;
   private animationFrameId?: number;
   private experienceAnimationId?: number;
+  private experienceObserver?: IntersectionObserver;
+  private experienceVisible = false;
   private mousePosition = { x: 0, y: 0 };
   private readonly particleSymbols = ['•', '○', '◦', '⚬', '∙', '·'];
+  private readonly cleanupFunctions: Array<() => void> = [];
+  private readonly updateMousePosition = (event: MouseEvent) => {
+    this.mousePosition = { x: event.clientX, y: event.clientY };
+    if (this.animationFrameId !== undefined) return;
+
+    this.animationFrameId = requestAnimationFrame(() => {
+      this.animationFrameId = undefined;
+      this.updateMatrixParticles();
+    });
+  };
+
+  constructor(private readonly ngZone: NgZone) {}
+
+  private get prefersReducedMotion(): boolean {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
 
   initializeHeroAnimations(nameText: HTMLElement, socialIcons: HTMLElement) {
+    if (this.prefersReducedMotion) return;
+
     gsap.set([nameText, socialIcons], {
       opacity: 0,
       y: 50
@@ -58,6 +78,8 @@ export class AnimationService {
   }
 
   initializeLetterAnimations(letters: HTMLElement[]) {
+    if (this.prefersReducedMotion) return;
+
     letters.forEach((letter, index) => {
       this.tweens[index] = gsap.to(letter, {
         yPercent: -50,
@@ -70,16 +92,23 @@ export class AnimationService {
 
       letter.dataset['tween'] = index.toString();
 
-      letter.addEventListener('mouseenter', () => {
+      const handleMouseEnter = () => {
         const tween = this.tweens[Number(letter.dataset['tween'])];
         if (tween && !gsap.isTweening(letter)) {
           tween.restart();
         }
-      });
+      };
+
+      letter.addEventListener('mouseenter', handleMouseEnter);
+      this.cleanupFunctions.push(() =>
+        letter.removeEventListener('mouseenter', handleMouseEnter)
+      );
     });
   }
 
   initializeScrollAnimations(cards: HTMLElement[]) {
+    if (this.prefersReducedMotion) return;
+
     cards.forEach((card, index) => {
       const startX = index % 2 === 0 ? -300 : 300;
 
@@ -120,7 +149,7 @@ export class AnimationService {
 
   private setupCardHoverEffects(card: HTMLElement) {
     // Simple, high-performance hover effects
-    card.addEventListener('mouseenter', () => {
+    const handleMouseEnter = () => {
       gsap.to(card, {
         scale: 1.02,
         y: -8,
@@ -129,9 +158,9 @@ export class AnimationService {
         duration: 0.3,
         ease: 'power2.out'
       });
-    });
+    };
 
-    card.addEventListener('mouseleave', () => {
+    const handleMouseLeave = () => {
       gsap.to(card, {
         scale: 1,
         y: 0,
@@ -140,7 +169,14 @@ export class AnimationService {
         duration: 0.3,
         ease: 'power2.out'
       });
-    });
+    };
+
+    card.addEventListener('mouseenter', handleMouseEnter);
+    card.addEventListener('mouseleave', handleMouseLeave);
+    this.cleanupFunctions.push(
+      () => card.removeEventListener('mouseenter', handleMouseEnter),
+      () => card.removeEventListener('mouseleave', handleMouseLeave)
+    );
   }
 
   private initializeSectionTitleAnimation() {
@@ -168,13 +204,15 @@ export class AnimationService {
   }
 
   initializeMatrixEffect(container: HTMLElement) {
-    this.matrixContainer = container;
-    this.createMatrixGrid();
-    this.startMatrixAnimation();
+    if (this.prefersReducedMotion) return;
 
-    // Add mouse move listener
-    window.addEventListener('mousemove', (e) => {
-      this.mousePosition = { x: e.clientX, y: e.clientY };
+    this.ngZone.runOutsideAngular(() => {
+      this.matrixContainer = container;
+      this.createMatrixGrid();
+      window.addEventListener('mousemove', this.updateMousePosition);
+      this.cleanupFunctions.push(() =>
+        window.removeEventListener('mousemove', this.updateMousePosition)
+      );
     });
   }
 
@@ -220,34 +258,28 @@ export class AnimationService {
     }
   }
 
-  private startMatrixAnimation() {
-    const animate = () => {
-      for (const particle of this.matrixParticles) {
-        if (!this.matrixContainer) break;
+  private updateMatrixParticles() {
+    if (!this.matrixContainer) return;
 
-        const dx = this.mousePosition.x - (particle.x + this.matrixContainer.offsetLeft);
-        const dy = this.mousePosition.y - (particle.y + this.matrixContainer.offsetTop);
-        const distance = Math.sqrt(dx * dx + dy * dy);
+    const containerLeft = this.matrixContainer.offsetLeft;
+    const containerTop = this.matrixContainer.offsetTop;
 
-        if (distance < 150) {
-          if (!particle.changing) {
-            particle.changing = true;
-            this.animateParticle(particle);
-          }
-        } else {
-          if (particle.changing) {
-            particle.changing = false;
-            particle.element.textContent = particle.originalChar;
-            particle.element.style.color = '#c15905';
-            particle.element.style.opacity = '0.3';
-          }
+    for (const particle of this.matrixParticles) {
+      const dx = this.mousePosition.x - (particle.x + containerLeft);
+      const dy = this.mousePosition.y - (particle.y + containerTop);
+
+      if (dx * dx + dy * dy < 22500) {
+        if (!particle.changing) {
+          particle.changing = true;
+          this.animateParticle(particle);
         }
+      } else if (particle.changing) {
+        particle.changing = false;
+        particle.element.textContent = particle.originalChar;
+        particle.element.style.color = '#c15905';
+        particle.element.style.opacity = '0.3';
       }
-
-      this.animationFrameId = requestAnimationFrame(animate);
-    };
-
-    animate();
+    }
   }
 
   private animateParticle(particle: MatrixParticle) {
@@ -265,9 +297,24 @@ export class AnimationService {
   }
 
   initializeExperienceEffect(section: HTMLElement) {
+    if (this.prefersReducedMotion) return;
+
     this.experienceContainer = section;
     this.createExperienceParticles();
-    this.startExperienceAnimation();
+    this.ngZone.runOutsideAngular(() => {
+      this.experienceObserver = new IntersectionObserver(
+        ([entry]) => {
+          this.experienceVisible = entry?.isIntersecting ?? false;
+          if (this.experienceVisible) {
+            this.startExperienceAnimation();
+          } else {
+            this.stopExperienceAnimation();
+          }
+        },
+        { rootMargin: '100px' }
+      );
+      this.experienceObserver.observe(section);
+    });
   }
 
   private createExperienceParticles() {
@@ -316,8 +363,13 @@ export class AnimationService {
   }
 
   private startExperienceAnimation() {
+    if (this.experienceAnimationId !== undefined) return;
+
     const animate = () => {
-      if (!this.experienceContainer) return;
+      if (!this.experienceContainer || !this.experienceVisible) {
+        this.experienceAnimationId = undefined;
+        return;
+      }
 
       const rect = this.experienceContainer.getBoundingClientRect();
       const relativeX = this.mousePosition.x - rect.left;
@@ -340,7 +392,7 @@ export class AnimationService {
         const distance = Math.sqrt(dx * dx + dy * dy);
         const maxDistance = 150;
 
-        if (distance < maxDistance && relativeY > 0 && relativeY < rect.height) {
+        if (distance > 0 && distance < maxDistance && relativeY > 0 && relativeY < rect.height) {
           const force = (1 - distance / maxDistance) * 0.2;
           particle.speedX += (dx / distance) * force;
           particle.speedY += (dy / distance) * force;
@@ -376,7 +428,16 @@ export class AnimationService {
     animate();
   }
 
+  private stopExperienceAnimation() {
+    if (this.experienceAnimationId === undefined) return;
+
+    cancelAnimationFrame(this.experienceAnimationId);
+    this.experienceAnimationId = undefined;
+  }
+
   initializeExperienceEffects(cards: HTMLElement[]) {
+    if (this.prefersReducedMotion) return;
+
     for (const card of cards) {
       // Create glitch effect container
       const glitchContainer = document.createElement('div');
@@ -392,13 +453,20 @@ export class AnimationService {
       }
 
       // Add hover effect
-      card.addEventListener('mouseenter', () => {
+      const handleMouseEnter = () => {
         this.startGlitchEffect(glitchContainer);
-      });
+      };
 
-      card.addEventListener('mouseleave', () => {
+      const handleMouseLeave = () => {
         this.stopGlitchEffect(glitchContainer);
-      });
+      };
+
+      card.addEventListener('mouseenter', handleMouseEnter);
+      card.addEventListener('mouseleave', handleMouseLeave);
+      this.cleanupFunctions.push(
+        () => card.removeEventListener('mouseenter', handleMouseEnter),
+        () => card.removeEventListener('mouseleave', handleMouseLeave)
+      );
     }
   }
 
@@ -432,12 +500,29 @@ export class AnimationService {
   }
 
   destroy() {
-    if (this.animationFrameId) {
+    for (const cleanup of this.cleanupFunctions.splice(0)) {
+      cleanup();
+    }
+    for (const trigger of ScrollTrigger.getAll()) {
+      trigger.kill();
+    }
+    for (const animation of gsap.globalTimeline.getChildren()) {
+      animation.kill();
+    }
+    for (const tween of Object.values(this.tweens)) {
+      tween.kill();
+    }
+    this.tweens = {};
+
+    if (this.animationFrameId !== undefined) {
       cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = undefined;
     }
-    if (this.experienceAnimationId) {
-      cancelAnimationFrame(this.experienceAnimationId);
-    }
+    this.experienceObserver?.disconnect();
+    this.experienceObserver = undefined;
+    this.experienceVisible = false;
+    this.stopExperienceAnimation();
+    this.matrixParticles.forEach((particle) => (particle.changing = false));
     this.matrixParticles = [];
     this.experienceParticles = [];
     if (this.matrixContainer) {

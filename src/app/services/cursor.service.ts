@@ -1,4 +1,4 @@
-import { Injectable, ElementRef } from '@angular/core';
+import { ElementRef, Injectable, NgZone } from '@angular/core';
 import gsap from 'gsap';
 
 @Injectable({
@@ -8,15 +8,24 @@ export class CursorService {
   private mouse = { x: 0, y: 0 };
   private cursorRef?: ElementRef;
   private cursorTrailerRef?: ElementRef;
+  private enabled = false;
+
+  constructor(private readonly ngZone: NgZone) {}
 
   initialize(cursorRef: ElementRef, cursorTrailerRef: ElementRef) {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
     this.cursorRef = cursorRef;
     this.cursorTrailerRef = cursorTrailerRef;
+    this.enabled = true;
     document.body.style.cursor = 'none';
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener('mousemove', this.handleMouseMove);
+    });
   }
 
-  handleMouseMove(event: MouseEvent) {
-    if (!this.cursorRef || !this.cursorTrailerRef) return;
+  readonly handleMouseMove = (event: MouseEvent) => {
+    if (!this.enabled || !this.cursorRef || !this.cursorTrailerRef) return;
 
     this.mouse.x = event.clientX;
     this.mouse.y = event.clientY;
@@ -44,9 +53,21 @@ export class CursorService {
       cursor.classList.remove('cursor-hover');
       trailer.classList.remove('cursor-hover');
     }
-  }
+  };
 
   destroy() {
+    if (!this.enabled) return;
+
+    if (this.cursorRef && this.cursorTrailerRef) {
+      gsap.killTweensOf([
+        this.cursorRef.nativeElement,
+        this.cursorTrailerRef.nativeElement
+      ]);
+    }
+    window.removeEventListener('mousemove', this.handleMouseMove);
     document.body.style.cursor = 'auto';
+    this.cursorRef = undefined;
+    this.cursorTrailerRef = undefined;
+    this.enabled = false;
   }
 }

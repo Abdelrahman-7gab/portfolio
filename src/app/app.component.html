@@ -12,16 +12,30 @@
     </h1>
     <p #roleText class="role">{{ displayedRole }}</p>
     <div #socialIcons class="social-icons">
-      <a href="https://github.com/Abdelrahman-7gab" target="_blank" class="icon-link">
+      <a href="https://github.com/Abdelrahman-7gab"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="icon-link"
+         aria-label="GitHub profile">
         <fa-icon [icon]="faGithub"></fa-icon>
       </a>
-      <a href="https://www.linkedin.com/in/abdelrahman-hegab-4779aa1a6/" target="_blank" class="icon-link">
+      <a href="https://www.linkedin.com/in/abdelrahman-hegab-4779aa1a6/"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="icon-link"
+         aria-label="LinkedIn profile">
         <fa-icon [icon]="faLinkedin"></fa-icon>
       </a>
-      <a href="mailto:me@abdelrahman-hegab.com" class="icon-link">
+      <a href="mailto:me@abdelrahman-hegab.com"
+         class="icon-link"
+         aria-label="Email Abdelrahman Hegab">
         <fa-icon [icon]="faEnvelope"></fa-icon>
       </a>
-      <a href="/assets/abdelrahman-hegab-resume-2026-07-25.pdf" target="_blank" class="icon-link">
+      <a href="/assets/abdelrahman-hegab-resume-2026-07-25.pdf"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="icon-link"
+         aria-label="Open résumé">
         <fa-icon [icon]="faFileAlt"></fa-icon>
       </a>
     </div>
@@ -63,9 +77,10 @@
            class="project-card"
            [class.project-right]="i"
            [attr.data-scroll]="true">
+        <h3 class="project-title mobile-project-title">{{ project.title }}</h3>
         <div class="project-content">
           <div class="project-text">
-            <h3 class="project-title">{{ project.title }}</h3>
+            <h3 class="project-title desktop-project-title">{{ project.title }}</h3>
             <p class="project-description">{{ project.description }}</p>
             <ul class="project-features">
               <li *ngFor="let feature of project.features">{{ feature }}</li>
@@ -78,6 +93,7 @@
               <a *ngIf="project.githubUrl"
                  [href]="project.githubUrl"
                  target="_blank"
+                 rel="noopener noreferrer"
                  class="project-link github">
                 <fa-icon [icon]="faGithub"></fa-icon>
                 <span>Source Code</span>
@@ -85,6 +101,7 @@
               <a *ngIf="project.npmUrl"
                  [href]="project.npmUrl"
                  target="_blank"
+                 rel="noopener noreferrer"
                  class="project-link npm">
                 <fa-icon [icon]="faNpm"></fa-icon>
                 <span>NPM Package</span>
@@ -92,6 +109,7 @@
               <a *ngIf="project.liveUrl"
                  [href]="project.liveUrl"
                  target="_blank"
+                 rel="noopener noreferrer"
                  class="project-link live">
                 <fa-icon [icon]="faExternalLink"></fa-icon>
                 <span>Live Demo</span>
@@ -114,10 +132,10 @@
           <fa-icon [icon]="faEnvelope"></fa-icon>
           <span>me&#64;abdelrahman-hegab.com</span>
         </a>
-        <span href="tel:+201234567890" class="contact-item">
+        <a href="tel:+201129347201" class="contact-item">
           <fa-icon [icon]="faPhone"></fa-icon>
           <span>(+20)1129347201</span>
-        </span>
+        </a>
       </div>
     </div>
   </section>

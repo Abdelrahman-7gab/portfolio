@@ -9,12 +9,6 @@ export interface Project {
   features: string[];
 }
 
-// Function to determine MCPRunner URL based on date
-function getMCPRunnerURL(): string {
-  const expirationDate = new Date('2026-03-10');
-  return new Date() < expirationDate ? 'https://mcprunner.com' : 'https://mcprunnerweb.pages.dev/';
-}
-
 export const projects: Project[] = [
   {
     title: 'Musicpedia',
@@ -36,7 +30,7 @@ export const projects: Project[] = [
     image: './assets/images/mcprunner.png',
     technologies: ['Node.js', 'CLI', 'Cross-Platform', 'Shell Scripting'],
     githubUrl: 'https://github.com/Abdelrahman-7gab/MCPRunner',
-    liveUrl: getMCPRunnerURL(),
+    liveUrl: 'https://mcprunnerweb.pages.dev/',
     npmUrl: 'https://www.npmjs.com/package/mcprunner',
     features: [
       'Single command execution for scripts with environment variables',

@@ -30,7 +30,7 @@
 
   .char {
     display: inline-block;
-    cursor: pointer;
+    cursor: none;
     transition: color 0.2s ease;
     transform-origin: bottom center;
 
@@ -71,10 +71,17 @@
 }
 
 .icon-link {
+  position: relative;
   color: inherit;
   font-size: 1.5rem;
   transition: color 0.3s ease;
   will-change: transform;
+
+  &::before {
+    position: absolute;
+    inset: -12px;
+    content: '';
+  }
 
   &:hover {
     color: #c15905;
@@ -151,7 +158,6 @@ main {
     font-size: 3rem;
     margin-bottom: 1rem;
     color: #c15905;
-    font-family: 'Teko', sans-serif;
   }
 }
 
@@ -250,7 +256,7 @@ main {
 
       .tech-tag {
         background: rgba(193, 89, 5, 0.1);
-        color: #c15905;
+        color: #ff8534;
         padding: 0.3rem 0.8rem;
         border-radius: 20px;
         font-size: 0.85rem;
@@ -272,7 +278,9 @@ main {
   color: #c15905;
   margin-bottom: 2rem;
   text-align: center;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -0.04em;
   position: relative;
 
   &::after {
@@ -429,6 +437,10 @@ main {
   }
 }
 
+.mobile-project-title {
+  display: none;
+}
+
 .project-description {
   color: rgba(255, 255, 255, 0.8);
   font-size: 1.1rem;
@@ -503,10 +515,11 @@ main {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-height: 44px;
     padding: 0.8rem 1.5rem;
     border-radius: 25px;
     background: rgba(193, 89, 5, 0.1);
-    color: #c15905;
+    color: #ff8534;
     text-decoration: none;
     transition: all 0.3s ease;
     border: 1px solid rgba(193, 89, 5, 0.2);
@@ -547,6 +560,15 @@ main {
 }
 
 @media (max-width: 768px) {
+  .mobile-project-title {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .desktop-project-title {
+    display: none;
+  }
+
   .project-content {
     grid-template-columns: 1fr !important;
     gap: 2rem;
@@ -590,7 +612,7 @@ main {
 
   .tech-tag {
     background: rgba(193, 89, 5, 0.1);
-    color: #c15905;
+    color: #ff8534;
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
     font-size: 0.85rem;
@@ -628,11 +650,12 @@ main {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-height: 44px;
   padding: 1rem 2rem;
   background: rgba(193, 89, 5, 0.1);
   border: 1px solid rgba(193, 89, 5, 0.2);
   border-radius: 30px;
-  color: #c15905;
+  color: #ff8534;
   text-decoration: none;
   transition: all 0.3s ease;
   font-family: 'Fira Code', monospace;
@@ -681,5 +704,36 @@ main {
   .contact-item {
     padding: 0.8rem 1.5rem;
     font-size: 0.9rem;
+  }
+}
+
+.icon-link:focus-visible,
+.project-link:focus-visible,
+.contact-item:focus-visible {
+  outline: 3px solid #ff8534;
+  outline-offset: 4px;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .cursor,
+  .cursor-trailer {
+    display: none;
+  }
+
+  a,
+  .char,
+  main {
+    cursor: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
