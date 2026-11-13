@@ -1,0 +1,3 @@
+# Cloudflare Pages: the résumé keeps one URL, so browsers must recheck it on every visit (a cheap 304 when unchanged).
+/assets/abdelrahman-hegab-resume.pdf
+  Cache-Control: no-cache

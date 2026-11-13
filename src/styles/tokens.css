@@ -1,0 +1,74 @@
+/* Hegab — design tokens, variables only (type classes live in components.css as hg-*). Source: Hegab design system. */
+:root, [data-theme="dark"] {
+  --bg: #050608;
+  --surface: #15171A;
+  --surface-2: #1C1E21;
+  --surface-3: #222428;
+  --hairline: #1E2024;
+  --border: #2A2D31;
+  --border-strong: #5A6067;
+  --ink: #F2F2F3;
+  --ink-2: #9AA0A6;
+  --ink-3: #8A9097;
+  --fill: #F2F2F3;
+  --on-fill: #050608;
+  --signal: #F2A13C;
+  --signal-soft: rgba(242,161,60,0.14);
+  --signal-line: rgba(242,161,60,0.40);
+  --on-signal: #050608;
+  --danger: #E8695B;
+  --focus-ring: var(--ink);
+  --scrim: rgba(0,0,0,0.62);
+  --shadow-float: 0 40px 90px rgba(0,0,0,0.6);
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  --bg: #F5F6F7;
+  --surface: #FFFFFF;
+  --surface-2: #ECEEF0;
+  --surface-3: #E2E5E8;
+  --hairline: #E3E6E9;
+  --border: #D3D7DB;
+  --border-strong: #868C93;
+  --ink: #0B0C0E;
+  --ink-2: #4C5258;
+  --ink-3: #5F656C;
+  --fill: #0B0C0E;
+  --on-fill: #FFFFFF;
+  --signal: #A4500C;
+  --signal-soft: rgba(164,80,12,0.10);
+  --signal-line: rgba(164,80,12,0.35);
+  --on-signal: #FFFFFF;
+  --danger: #B83A2C;
+  --focus-ring: var(--ink);
+  --scrim: rgba(11,12,14,0.40);
+  --shadow-float: 0 24px 60px rgba(11,12,14,0.14);
+  color-scheme: light;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+  --space-9: 120px;
+  --gutter: 96px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 28px;
+  --radius-pill: 9999px;
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 360ms;
+  --dur-build: 700ms;
+  --dur-chapter: 750ms;
+  --dur-pulse: 1600ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-pop: cubic-bezier(0.3, 1.6, 0.5, 1);
+  --font-display: "Mona Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Mona Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}

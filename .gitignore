@@ -26,10 +26,10 @@ yarn-error.log
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+!.vscode/mcp.json
 .history/*
 
 # Miscellaneous
-/.serena/
 /.angular/cache
 .sass-cache/
 /connect.lock
@@ -37,7 +37,14 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
+__screenshots__/
 
 # System files
 .DS_Store
 Thumbs.db
+
+# CV build output
+/cv/build
+
+# Local dev-server config for the Claude app
+/.claude/launch.json

@@ -1,0 +1,420 @@
+<div class="stage" #stage aria-hidden="true"></div>
+
+<header class="chrome-top">
+  <a
+    class="hg-brand"
+    href="#hello"
+    aria-label="Abdelrahman Hegab, back to top"
+    (click)="$event.preventDefault(); go(0)"
+  >
+    <span class="mark"
+      >A<span class="fold f1">bdelrahman&nbsp;</span>H<span class="fold f2">egab</span></span
+    >
+  </a>
+  <nav aria-label="Chapters">
+    <ul class="hg-toc">
+      @for (c of chapters; track c.id; let i = $index) {
+        <li>
+          <a
+            [href]="'#' + c.id"
+            [attr.aria-current]="current() === i"
+            (click)="$event.preventDefault(); go(i)"
+            >{{ c.name }}</a
+          >
+        </li>
+      }
+    </ul>
+  </nav>
+  <button
+    class="hg-iconbtn"
+    type="button"
+    (click)="toggleTheme()"
+    [attr.aria-label]="theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+  >
+    {{ theme() === 'dark' ? '☼' : '☾' }}
+  </button>
+</header>
+
+<main>
+  <section
+    id="hello"
+    class="chapter"
+    tabindex="-1"
+    data-chapter
+    data-build
+    [class.is-on]="built().has('hello')"
+  >
+    <div class="inner split hello">
+      <div class="hg-heading">
+        <p class="hg-kicker hg-r">Full-stack engineer</p>
+        <h1
+          class="hg-hero name"
+          aria-label="Abdelrahman Hegab"
+          (pointerenter)="lensEnter($event)"
+          (pointermove)="lens($event)"
+          (pointerleave)="lensOff()"
+        >
+          <span class="word" aria-hidden="true">
+            @for (c of nameFirst; track $index) {
+              <span class="ch" [style.--i]="$index">{{ c }}</span>
+            }</span
+          >&ngsp;<span class="word mute" aria-hidden="true">
+            @for (c of nameLast; track $index) {
+              <span class="ch" [style.--i]="$index + nameFirst.length">{{ c }}</span>
+            }
+          </span>
+        </h1>
+        <p class="hg-lead hg-r hg-d3">
+          Payments, refunds, POS apps, observability and more. I build what happens after a student
+          taps at Spare.
+        </p>
+        <div class="hg-btns actions hg-r hg-d3">
+          <a class="hg-btn" [href]="'mailto:' + links.email">
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+            </svg>
+            Email me
+          </a>
+          <a class="hg-btn hg-btn-line" [href]="links.resume" target="_blank" rel="noopener">
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+              />
+              <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+              <path d="M10 9H8" />
+              <path d="M16 13H8" />
+              <path d="M16 17H8" />
+            </svg>
+            Résumé
+          </a>
+          <span class="socials">
+            <span class="divider" aria-hidden="true"></span>
+            <a
+              class="hg-iconbtn social"
+              [href]="links.github"
+              target="_blank"
+              rel="noopener"
+              aria-label="GitHub"
+              title="GitHub"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+                />
+              </svg>
+            </a>
+            <a
+              class="hg-iconbtn social"
+              [href]="links.linkedin"
+              target="_blank"
+              rel="noopener"
+              aria-label="LinkedIn"
+              title="LinkedIn"
+            >
+              <span class="in" aria-hidden="true">in</span>
+            </a>
+          </span>
+        </div>
+      </div>
+      <div class="hero-anchor" data-anchor="hello" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section
+    id="numbers"
+    class="chapter"
+    tabindex="-1"
+    data-chapter
+    data-build
+    [class.is-on]="built().has('numbers')"
+  >
+    <div class="inner split">
+      <div class="hg-heading">
+        <p class="hg-kicker hg-r">Spare Payments · since March 2024</p>
+        <h2 class="hg-headline hg-r hg-d1">My work, <span class="mute">itemised.</span></h2>
+        <p class="hg-lead hg-r hg-d2">
+          Everything that has gone through the payment stack I've worked on since I joined, rounded
+          from Spare's own data.
+        </p>
+        @if (has3d()) {
+          <div class="hg-r hg-d3">
+            <button class="hg-btn hg-btn-line" type="button" (click)="reprint()">
+              Print it again
+            </button>
+          </div>
+        }
+      </div>
+      <div class="printer" data-anchor="receipt">
+        <div class="slot" aria-hidden="true"></div>
+        <div class="receipt" role="img" [attr.aria-label]="receiptLabel">
+          <p class="r-head">SPARE PAYMENTS<br /><span>Since March 2024</span></p>
+          <p class="r-rule"></p>
+          @for (l of receipt.lines; track l.label) {
+            <p class="r-line" [class.sub]="l.sub">
+              <span>{{ l.label }}</span><b>{{ l.value }}</b>
+            </p>
+          }
+          <p class="r-rule"></p>
+          <p class="r-line total"><span>Engineer</span><b>A. Hegab</b></p>
+          <p class="r-ok">*** APPROVED ***</p>
+          <p class="r-foot">{{ receipt.through }}</p>
+          <p class="r-barcode" aria-hidden="true"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="commits"
+    class="chapter"
+    tabindex="-1"
+    data-chapter
+    data-build
+    [class.is-on]="built().has('commits')"
+  >
+    <div class="inner split">
+      <div class="hg-heading">
+        <p class="hg-kicker hg-r">git log --author=me</p>
+        <h2 class="hg-headline hg-r hg-d1">
+          {{ commits.total }} commits. <span class="mute">Here's where they went.</span>
+        </h2>
+        <p class="hg-lead hg-r hg-d2">
+          Across {{ commits.repos }} of Spare's repositories, grouped by the scope in each commit
+          message.
+        </p>
+        <div class="hg-chips hg-r hg-d3" aria-label="Stack">
+          @for (s of stack; track s) {
+            <span class="hg-chip">{{ s }}</span>
+          }
+        </div>
+      </div>
+      <div class="areas">
+        @for (a of commits.areas; track a.name; let i = $index) {
+          <div class="area" [class.rest]="a.rest" [style.--w]="a.n / commitMax" [style.--i]="i">
+            <span class="area-name">{{ a.name }}</span>
+            <b class="area-n">{{ a.n }}</b>
+            @if (!a.rest) {
+              <span class="area-track"><i></i></span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="payments"
+    class="chapter"
+    tabindex="-1"
+    data-chapter
+    data-build
+    [class.is-on]="built().has('payments')"
+  >
+    <div class="inner split">
+      <div class="hg-heading">
+        <p class="hg-kicker hg-r">Payments</p>
+        <h2 class="hg-headline hg-r hg-d1">
+          Money in, money out. <span class="mute">Both add up.</span>
+        </h2>
+        <p class="hg-lead hg-r hg-d2">
+          I built direct payments and refunds, wired in the card gateways, and wrote the reports
+          that finance checks against the dashboard.
+        </p>
+      </div>
+      <div class="hg-ledger">
+        @for (p of payments; track p.title; let i = $index) {
+          <div class="hg-row" [style.--i]="i">
+            <span class="t"
+              >{{ p.title }}<small>{{ p.detail }}</small></span
+            >
+            @if (p.value) {
+              <span class="v">{{ p.value }}</span>
+            }
+            <span class="ok" aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10" /></svg
+            ></span>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="tracing"
+    class="chapter"
+    tabindex="-1"
+    data-chapter
+    data-build
+    [class.is-on]="built().has('tracing')"
+  >
+    <div class="inner stack-7">
+      <div class="hg-heading">
+        <p class="hg-kicker hg-r">Observability · OpenTelemetry</p>
+        <h2 class="hg-headline hg-r hg-d1">When it's slow, I can say where.</h2>
+        <p class="hg-lead is-wide hg-r hg-d2">
+          I added OpenTelemetry tracing and structured logs to Spare's core services, so every slow
+          request shows exactly which call made it slow.
+        </p>
+      </div>
+      <div class="waterfall hg-r hg-d3" [class.sweeping]="sweeping()" [style.--n]="trace().length">
+        <div class="wf-head">
+          <span class="hg-label"
+            >Illustrative trace · {{ trace()[0].name }} · hover or tap a span to see its
+            attributes</span
+          >
+          <span class="wf-total">{{ traceScale }} ms</span>
+        </div>
+        <div class="wf-row wf-axis hg-label" aria-hidden="true">
+          <span class="wf-axis-gap"></span>
+          <span class="wf-track">
+            @for (t of traceTicks; track t) {
+              <span class="wf-tick" [style.left.%]="(t / traceScale) * 100">{{ t }}</span>
+            }
+            <i
+              class="wf-cursor"
+              [class.on]="sweeping()"
+              [style.left.%]="(cursor() / traceScale) * 100"
+            ></i>
+          </span>
+          <span class="wf-axis-gap"></span>
+        </div>
+        @for (s of trace(); track s.name; let i = $index) {
+          <button
+            type="button"
+            class="wf-row wf-span"
+            [class.on]="s.on"
+            [class.slow]="s.slow"
+            [class.picked]="hovered() === i"
+            [attr.aria-pressed]="hovered() === i"
+            (mouseenter)="hovered.set(i)"
+            (focus)="hovered.set(i)"
+            (click)="hovered.set(i)"
+          >
+            <span class="wf-name" [style.--depth]="s.depth">
+              <b>{{ s.name }}</b><span class="wf-svc">{{ s.service }}</span>
+            </span>
+            <span class="wf-track"
+              ><i class="wf-bar" [style.left.%]="s.left" [style.width.%]="s.width"></i
+            ></span>
+            <span class="wf-dur">{{ s.on ? s.dur + ' ms' : '' }}</span>
+          </button>
+        }
+        <div class="wf-foot">
+          <code class="wf-attrs" aria-live="polite">{{ trace()[hovered()].attrs }}</code>
+          <div class="hg-btns">
+            <button class="hg-btn hg-btn-ghost" type="button" (click)="replayTrace()">
+              Replay
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="career"
+    class="chapter"
+    tabindex="-1"
+    data-chapter
+    data-build
+    [class.is-on]="built().has('career')"
+  >
+    <div class="inner stack-7">
+      <div class="hg-heading">
+        <p class="hg-kicker hg-r">Career · {{ careerStart }} — now</p>
+        <h2 class="hg-headline hg-r hg-d1">{{ careerYears }} years, one trace.</h2>
+        <p class="hg-lead is-wide hg-r hg-d2">
+          From teaching at university to full-stack at Spare, with two startups in between. Open a
+          role to see what I did there.
+        </p>
+      </div>
+      <div class="hg-trace hg-r hg-d3" [style.--start]="start" [style.--end]="end">
+        <div class="hg-trace-axis hg-label">
+          <span class="who-h">Span</span>
+          <span class="ticks">
+            @for (y of ticks; track y) {
+              <span [style.--y]="y">{{ y }}</span>
+            }
+          </span>
+          <span class="dur-h">Duration</span>
+        </div>
+        @for (s of spans; track s.name; let i = $index) {
+          <div class="hg-span-item" [class.open]="picked() === i" [style.--i]="i">
+            <button
+              class="hg-span"
+              type="button"
+              [class.is-live]="s.live"
+              [attr.aria-expanded]="picked() === i"
+              [attr.aria-controls]="'span-' + i"
+              [style.--a]="s.a"
+              [style.--b]="s.b"
+              (click)="pick(i, $event)"
+            >
+              <span class="who"
+                ><b>{{ s.name }}</b
+                ><span class="hg-label">{{ s.role }}</span></span
+              >
+              <span class="track"><i class="bar"></i></span>
+              <span class="dur">{{ s.dur }}<span class="hg-chev" aria-hidden="true"></span></span>
+            </button>
+            <div
+              class="hg-span-panel"
+              [id]="'span-' + i"
+              role="region"
+              [attr.aria-label]="s.name"
+              [attr.inert]="picked() === i ? null : ''"
+            >
+              <div>
+                <ul class="hg-points">
+                  @for (pt of s.points; track pt.area; let j = $index) {
+                    <li class="hg-point" [style.--i]="j">
+                      <span class="hg-label">{{ pt.area }}</span>
+                      <p>{{ pt.text }}</p>
+                    </li>
+                  }
+                </ul>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="contact"
+    class="chapter"
+    tabindex="-1"
+    data-chapter
+    data-build
+    [class.is-on]="built().has('contact')"
+  >
+    <div class="inner hg-heading">
+      <p class="hg-kicker hg-r">Contact</p>
+      <h2 class="hg-hero hg-r hg-d1">Say hello.</h2>
+      <p class="email hg-r hg-d2" #email>{{ links.email }}</p>
+      <div class="hg-btns hg-r hg-d3">
+        <a class="hg-btn" [href]="'mailto:' + links.email">Email me <span class="arr">→</span></a>
+        <button class="hg-btn hg-btn-line" type="button" aria-live="polite" (click)="copyEmail()">
+          {{ copied() ?? 'Copy address' }}
+        </button>
+        <a class="hg-btn hg-btn-ghost" [href]="links.linkedin" target="_blank" rel="noopener"
+          >LinkedIn</a
+        >
+        <a class="hg-btn hg-btn-ghost" [href]="links.github" target="_blank" rel="noopener"
+          >GitHub</a
+        >
+        <a class="hg-btn hg-btn-ghost" [href]="'tel:' + links.phone">{{ links.phoneLabel }}</a>
+      </div>
+      <p class="hg-label hg-r hg-d4">© {{ year }} Abdelrahman Hegab</p>
+    </div>
+  </section>
+</main>
+
+<footer class="chrome-bottom">
+  <span class="hg-counter"
+    ><b>{{ counter() }}</b> / {{ total }}</span
+  >
+  <div class="hg-progress"><i [style.--p]="progress() + '%'"></i></div>
+</footer>
