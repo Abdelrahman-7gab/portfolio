@@ -154,7 +154,12 @@ main { position: relative; z-index: 1; }
   .chapter { padding-block: var(--space-8); }
   .split { grid-template-columns: minmax(0, 1fr); }
   .has-3d .hello { grid-template-columns: minmax(0, 1fr); }
-  .has-3d .hero-anchor { display: none; }
+  /* One column: the terminal sits under the hero text, and the commits chapter is opaque so the
+     terminal's body, which runs off below the receipt, stays tucked behind it. */
+  .has-3d .hero-anchor { height: min(34svh, 280px); }
+  .has-3d #commits { background: linear-gradient(transparent, var(--bg) 96px); }
+  /* The box takes the paper's proportions (stage-3d: PW / (PH + 0.12), PH = PW * TH / TW), so the paper fills it. */
+  .has-3d .printer { height: auto; aspect-ratio: 0.62; min-height: 0; overflow: hidden; } /* the hidden CSS receipt must not stretch it */
 }
 @media (max-width: 640px) {
   .hg-counter { display: none; }

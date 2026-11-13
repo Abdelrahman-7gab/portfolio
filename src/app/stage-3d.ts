@@ -35,7 +35,7 @@ const BODY = { w: 1, h: 1.9, d: 0.2 };
 const HEAD = { h: 0.34, d: 0.42 };
 const SLOT_Y = BODY.h / 2 + HEAD.h;
 const PW = 0.8; // paper width
-const TW = 720, TH = 880; // paper texture size
+const TW = 600, TH = 880; // paper texture size (narrow, so the text is large once the paper is fitted to a phone)
 
 /* ---------------------------------------------------------------- 2D drawing for the textures */
 
@@ -89,8 +89,8 @@ function drawReceipt(g: CanvasRenderingContext2D, data: ReceiptData) {
   rule(g, (y += 28));
   y += 44;
   for (const l of data.lines) {
-    text(g, l.sub ? l.label : l.label.toUpperCase(), l.sub ? 86 : 52, y, 24, l.sub ? 500 : 600, l.sub ? '#55554f' : INK);
-    text(g, l.value, TW - 52, y, 24, l.sub ? 500 : 600, l.sub ? '#55554f' : INK, 'right');
+    text(g, l.sub ? l.label : l.label.toUpperCase(), l.sub ? 86 : 52, y, 24, l.sub ? 500 : 600, l.sub ? '#45453f' : INK);
+    text(g, l.value, TW - 52, y, 24, l.sub ? 500 : 600, l.sub ? '#45453f' : INK, 'right');
     y += 36;
   }
   rule(g, (y -= 12));
@@ -160,7 +160,6 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
   await Promise.all([document.fonts.load(`600 24px ${MONO}`), document.fonts.load(`700 44px ${SANS}`)]).catch(() => {});
 
   const renderer = new WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -236,9 +235,10 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
 
   // --- the paper: drawn on a canvas, bent per frame, fed upward out of the slot
   const paperCanvas = document.createElement('canvas');
-  paperCanvas.width = TW;
-  paperCanvas.height = TH;
+  paperCanvas.width = TW * 2; // drawn at 2x so the small receipt text stays sharp up close
+  paperCanvas.height = TH * 2;
   const pg = paperCanvas.getContext('2d')!;
+  pg.scale(2, 2);
   const paperTex = new CanvasTexture(paperCanvas);
   paperTex.colorSpace = SRGBColorSpace;
   paperTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -311,6 +311,9 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
 
   const cur = { x: 6, y: 0, s: 0.6, ry: 0.8, rx: 0.1 };
   const resize = () => {
+    // A pixel budget rather than a fixed cap: phones get their full 3x (the receipt must be sharp there),
+    // big screens stay near 1.5x.
+    renderer.setPixelRatio(Math.min(devicePixelRatio, Math.max(1.5, Math.sqrt(3.2e6 / (innerWidth * innerHeight)))));
     renderer.setSize(innerWidth, innerHeight, false);
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
@@ -330,7 +333,25 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
       s = Math.min((r.height * wpp * 0.92) / (BODY.h + HEAD.h + 0.2), (r.width * wpp * 0.9) / 1.3);
       y = -(r.top + r.height / 2 - innerHeight / 2) * wpp;
     }
-    return { x, y, s, ry: TURN[at].ry + pointerX * TURN[at].sway, rx: 0.08 + pointerY * 0.25 };
+    // The terminal leans toward the pointer, but not on one-column layouts: there the tall paper would swing back and drop.
+    const lean = innerWidth <= 900 ? 0 : 1;
+    return { x, y, s, ry: TURN[at].ry + pointerX * TURN[at].sway * lean, rx: 0.08 + pointerY * 0.25 * lean };
+  };
+
+  /** One column (phones): there is no side margin to blend through, so the terminal follows the scroll instead.
+   *  From the top of the page to the receipt (t: 0 → 1) it arcs out to the right edge and back in. */
+  const phoneRoute = (wpp: number) => {
+    const [hEl, rEl] = (['hello', 'receipt'] as const).map((k) => anchors.find((a) => a.dataset['anchor'] === k));
+    const h = hEl?.getBoundingClientRect(), r = rEl?.getBoundingClientRect();
+    if (!h?.height || !r?.height) return null;
+    const t = Math.min(1, Math.max(0, scrollY / Math.max(1, r.top + r.height / 2 - innerHeight / 2 + scrollY)));
+    const e = t * t * (3 - 2 * t), arc = Math.sin(Math.PI * t);
+    const a = poseFor(h, 'hello', wpp), b = poseFor(r, 'receipt', wpp);
+    const p = { ...a };
+    for (const key of KEYS) p[key] = a[key] + (b[key] - a[key]) * e;
+    p.x += arc * ((innerWidth / 2) * wpp + 0.7 * Math.max(a.s, b.s)); // fully past the right edge halfway
+    p.ry += arc * 0.7; // and turned toward where it is going
+    return { t, p };
   };
 
   let last = performance.now();
@@ -357,7 +378,10 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
     // Hysteresis: keep the current anchor until it clearly fades or another clearly leads, so a slow scroll
     // across a boundary does not flip back and forth.
     const held = active ? (poses.find((p) => p.kind === active)?.w ?? 0) : 0;
-    const next = active && held >= 0.4 && !(lead && lead.kind !== active && lead.w >= 0.6) ? active : lead && lead.w >= 0.5 ? lead.kind : null;
+    const narrow = innerWidth <= 900;
+    const route = narrow ? phoneRoute(wpp) : null;
+    const next = route && route.t < 1 ? (route.t >= 0.75 ? 'receipt' : 'hello') // phones: print as it swings back in
+      : active && held >= 0.4 && !(lead && lead.kind !== active && lead.w >= 0.6) ? active : lead && lead.w >= 0.5 ? lead.kind : null;
     if (next !== active) {
       active = next;
       if (active === 'receipt' && (!printed || tearStart >= 0)) startPrint(); // also restarts a receipt that was tearing off
@@ -370,9 +394,11 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
     const norm = Math.max(1, sum);
     const rest = 1 - Math.min(1, sum);
     const target: Pose = { x: 0, y: 0, s: 0, ry: 0, rx: 0 };
-    const k = 1 - Math.exp(-dt * 5); // damped easing toward the blended target
+    // Phones: on the route before the receipt, then glued to the receipt so it scrolls away with it.
+    const glued = route && route.t < 1 ? route.p : narrow && lead ? (poses.find((p) => p.kind === active) ?? lead).p : null;
+    const k = 1 - Math.exp(-dt * (glued ? 8 : 5)); // damped easing toward the target
     for (const key of KEYS) {
-      target[key] = poses.reduce((a, b) => a + (b.w / norm) * b.p[key], 0) + rest * off[key];
+      target[key] = glued ? glued[key] : poses.reduce((a, b) => a + (b.w / norm) * b.p[key], 0) + rest * off[key];
       cur[key] += (target[key] - cur[key]) * k;
     }
     // Parked off-screen with nothing pulling it back: hide it, clear the canvas once, and stop the loop.

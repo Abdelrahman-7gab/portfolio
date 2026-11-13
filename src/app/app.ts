@@ -34,12 +34,7 @@ const WORDS = [
 const STILL =
   typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Decided before first paint, so the hero's two-column layout never reflows when the 3D scene arrives later.
-// Only on two-column layouts (wider than 900px): in one column the terminal would drift across the text.
-const CAN_3D =
-  !STILL &&
-  typeof window !== 'undefined' &&
-  'WebGL2RenderingContext' in window &&
-  matchMedia('(min-width: 901px)').matches;
+const CAN_3D = !STILL && typeof window !== 'undefined' && 'WebGL2RenderingContext' in window;
 
 @Component({
   selector: 'app-root',
