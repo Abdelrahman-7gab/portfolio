@@ -136,7 +136,7 @@ function drawScreen(g: CanvasRenderingContext2D, s: Screen) {
     g.strokeRect(cx - 60, 220, 120, 150);
     for (let i = 0; i < 4; i++) g.fillStyle = '#9aa0a6', g.fillRect(cx - 36, 250 + i * 26, i === 3 ? 44 : 72, 8);
     title(s === 'printing' ? 'Printing…' : 'Receipt printed', 470, 40);
-    sub('My work, itemised', 520);
+    sub('Spare, since March 2024', 520);
     return;
   }
   // Idle: the contactless symbol.

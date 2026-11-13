@@ -132,7 +132,7 @@
     <div class="inner split">
       <div class="hg-heading">
         <p class="hg-kicker hg-r">Spare Payments · since March 2024</p>
-        <h2 class="hg-headline hg-r hg-d1">My work, <span class="mute">itemised.</span></h2>
+        <h2 class="hg-headline hg-r hg-d1">What I&rsquo;ve worked on, <span class="mute">in numbers</span></h2>
         <p class="hg-lead hg-r hg-d2">
           Everything that has gone through the payment stack I've worked on since I joined, rounded
           from Spare's own data.
@@ -177,7 +177,7 @@
       <div class="hg-heading">
         <p class="hg-kicker hg-r">git log --author=me</p>
         <h2 class="hg-headline hg-r hg-d1">
-          {{ commits.total }} commits. <span class="mute">Here's where they went.</span>
+          {{ commits.total }} commits, <span class="mute">by area</span>
         </h2>
         <p class="hg-lead hg-r hg-d2">
           Across {{ commits.repos }} of Spare's repositories, grouped by the scope in each commit
@@ -215,7 +215,7 @@
       <div class="hg-heading">
         <p class="hg-kicker hg-r">Payments</p>
         <h2 class="hg-headline hg-r hg-d1">
-          Money in, money out. <span class="mute">Both add up.</span>
+          Payments <span class="mute">and refunds</span>
         </h2>
         <p class="hg-lead hg-r hg-d2">
           I built direct payments and refunds, wired in the card gateways, and wrote the reports
@@ -251,7 +251,7 @@
     <div class="inner stack-7">
       <div class="hg-heading">
         <p class="hg-kicker hg-r">Observability · OpenTelemetry</p>
-        <h2 class="hg-headline hg-r hg-d1">When it's slow, I can say where.</h2>
+        <h2 class="hg-headline hg-r hg-d1">Tracing <span class="mute">slow requests</span></h2>
         <p class="hg-lead is-wide hg-r hg-d2">
           I added OpenTelemetry tracing and structured logs to Spare's core services, so every slow
           request shows exactly which call made it slow.
@@ -323,7 +323,7 @@
     <div class="inner stack-7">
       <div class="hg-heading">
         <p class="hg-kicker hg-r">Career · {{ careerStart }} — now</p>
-        <h2 class="hg-headline hg-r hg-d1">{{ careerYears }} years, one trace.</h2>
+        <h2 class="hg-headline hg-r hg-d1">{{ careerYears }} years <span class="mute">of work</span></h2>
         <p class="hg-lead is-wide hg-r hg-d2">
           From teaching at university to full-stack at Spare, with two startups in between. Open a
           role to see what I did there.
@@ -392,7 +392,7 @@
   >
     <div class="inner hg-heading">
       <p class="hg-kicker hg-r">Contact</p>
-      <h2 class="hg-hero hg-r hg-d1">Say hello.</h2>
+      <h2 class="hg-hero hg-r hg-d1">Get in touch</h2>
       <p class="email hg-r hg-d2" #email>{{ links.email }}</p>
       <div class="hg-btns hg-r hg-d3">
         <a class="hg-btn" [href]="'mailto:' + links.email">Email me <span class="arr">→</span></a>
