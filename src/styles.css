@@ -9,6 +9,19 @@
 html { scroll-behavior: smooth; overflow-x: clip; }
 body { min-height: 100svh; }
 ::selection { background: var(--fill); color: var(--on-fill); }
+/* Cursor: a rounded arrow in the ink colour, a dot over anything clickable. The browser draws it, so it never lags;
+   a 2x image keeps it sharp on retina. Running text keeps the text cursor, so selecting still feels normal. */
+:root, [data-theme="dark"] {
+  --cursor: image-set(url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M5 4 18 11l-6 1.7L9.3 18z' fill='%23F2F2F3' stroke='%23050608' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M5 4 18 11l-6 1.7L9.3 18z' fill='%23F2F2F3' stroke='%23F2F2F3' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E") 1x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath d='M5 4 18 11l-6 1.7L9.3 18z' fill='%23F2F2F3' stroke='%23050608' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M5 4 18 11l-6 1.7L9.3 18z' fill='%23F2F2F3' stroke='%23F2F2F3' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E") 2x) 4 3, auto;
+  --cursor-hover: image-set(url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='6.5' fill='%23F2F2F3' stroke='%23050608' stroke-width='2'/%3E%3C/svg%3E") 1x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='6.5' fill='%23F2F2F3' stroke='%23050608' stroke-width='2'/%3E%3C/svg%3E") 2x) 12 12, pointer;
+}
+[data-theme="light"] {
+  --cursor: image-set(url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M5 4 18 11l-6 1.7L9.3 18z' fill='%230B0C0E' stroke='%23FFFFFF' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M5 4 18 11l-6 1.7L9.3 18z' fill='%230B0C0E' stroke='%230B0C0E' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E") 1x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath d='M5 4 18 11l-6 1.7L9.3 18z' fill='%230B0C0E' stroke='%23FFFFFF' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M5 4 18 11l-6 1.7L9.3 18z' fill='%230B0C0E' stroke='%230B0C0E' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E") 2x) 4 3, auto;
+  --cursor-hover: image-set(url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='6.5' fill='%230B0C0E' stroke='%23FFFFFF' stroke-width='2'/%3E%3C/svg%3E") 1x, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='6.5' fill='%230B0C0E' stroke='%23FFFFFF' stroke-width='2'/%3E%3C/svg%3E") 2x) 12 12, pointer;
+}
+html { cursor: var(--cursor); }
+a, button { cursor: var(--cursor-hover); }
+:where(p, .hg-point) { cursor: text; }
 
 .chapter {
   min-height: 100svh;
@@ -152,7 +165,7 @@ main { position: relative; z-index: 1; }
 .wf-cursor { position: absolute; top: 0; height: calc(var(--n) * 36px + 28px); width: 1px; background: var(--signal); opacity: 0; pointer-events: none; transition: opacity var(--dur-slow); }
 .wf-cursor.on { opacity: .7; }
 .waterfall.sweeping .wf-bar { transition: background-color var(--dur-base); }
-.wf-span { width: 100%; padding: 10px var(--space-3); border: 0; border-radius: var(--radius-sm); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; opacity: .25; transition: opacity var(--dur-base), background-color var(--dur-fast); }
+.wf-span { width: 100%; padding: 10px var(--space-3); border: 0; border-radius: var(--radius-sm); background: none; color: inherit; font: inherit; text-align: left; cursor: var(--cursor-hover, pointer); opacity: .25; transition: opacity var(--dur-base), background-color var(--dur-fast); }
 .wf-span.on { opacity: 1; }
 .wf-span:hover, .wf-span.picked { background: var(--surface-2); }
 .wf-name { display: flex; align-items: baseline; gap: var(--space-3); min-width: 0; white-space: nowrap; overflow: hidden; padding-left: calc(var(--depth, 0) * var(--space-4)); }
