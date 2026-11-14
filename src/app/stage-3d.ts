@@ -552,50 +552,64 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
   const anchors = [...document.querySelectorAll<HTMLElement>('[data-anchor]')];
   let active: AnchorKind | null = null;
   let gluedKind: AnchorKind | null = null; // the box the terminal is glued to (phones, and payments on wide screens)
+  let lastGlued: AnchorKind | null = null; // the box it was last glued to, even after it was parked
   let pointerX = 0, pointerY = 0;
   const onPointer = (e: PointerEvent) => ((pointerX = e.clientX / innerWidth - 0.5), (pointerY = e.clientY / innerHeight - 0.5));
   addEventListener('pointermove', onPointer, { passive: true });
 
   const cur: Pose = { x: 6, y: 0, s: 0.6, ry: 0.8, rx: 0.1, rz: 0 };
+  // The canvas: fixed over the whole screen on wide screens. On phones it is docked: part of the page, laid over the
+  // box the terminal is glued to, so a touch scroll moves the terminal with the text on the compositor instead of a
+  // frame behind it. vw x vh is its size; on phones the height is the tallest seen at this width, so the address bar
+  // showing and hiding mid-scroll never resizes (and jolts) the scene.
+  let vw = 0, vh = 0;
+  let dockEl: HTMLElement | null = null, dockTop = 0; // phones: the box the canvas is laid over, and the canvas's page top
   const resize = () => {
+    const narrow = NARROW.matches, h = narrow && innerWidth === vw ? Math.max(vh, innerHeight) : innerHeight;
+    if (innerWidth === vw && h === vh) return;
+    vw = innerWidth;
+    vh = h;
     // A pixel budget rather than a fixed cap: phones get their full 3x (the receipt must be sharp there),
     // big screens stay near 1.5x.
-    renderer.setPixelRatio(Math.min(devicePixelRatio, Math.max(1.5, Math.sqrt(3.2e6 / (innerWidth * innerHeight)))));
-    renderer.setSize(innerWidth, innerHeight, false);
-    camera.aspect = innerWidth / innerHeight;
+    renderer.setPixelRatio(Math.min(devicePixelRatio, Math.max(1.5, Math.sqrt(3.2e6 / (vw * vh)))));
+    renderer.setSize(vw, vh, false);
+    camera.aspect = vw / vh;
     camera.updateProjectionMatrix();
+    Object.assign(host.style, narrow ? { position: 'absolute', bottom: 'auto', height: `${vh}px` } : { position: '', bottom: '', height: '', top: '' });
+    dockEl = null; // re-dock at the new size
   };
   addEventListener('resize', resize);
   resize();
 
   /** Where the terminal sits for one anchor box: the whole device in the hero and payments; for the receipt, a paper
    *  close-up on wide screens and the terminal on its side at the screen edge on phones. */
-  const poseFor = (r: DOMRect, at: AnchorKind, wpp: number, narrow: boolean): Pose => {
+  type Box = { top: number; bottom: number; left: number; width: number; height: number };
+  const poseFor = (r: Box, at: AnchorKind, wpp: number, narrow: boolean): Pose => {
     const lean = narrow ? 0 : 1; // no pointer lean on phones: a finger is not a cursor
     const ry = TURN[at].ry + pointerX * TURN[at].sway * lean, rx = 0.08 + pointerY * 0.25 * lean;
-    const x = (r.left + r.width / 2 - innerWidth / 2) * wpp;
+    const x = (r.left + r.width / 2 - vw / 2) * wpp;
     if (at === 'receipt' && !narrow) {
       // Close-up: the paper fills the box so the numbers are readable; the body runs off below.
       const s = Math.min((r.width * wpp * 0.94) / PW, (r.height * wpp * 0.94) / (PH + 0.12));
-      return { x, y: -(r.bottom - innerHeight / 2) * wpp - SLOT_Y * s + 0.06 * s, s, ry, rx, rz: 0 };
+      return { x, y: -(r.bottom - vh / 2) * wpp - SLOT_Y * s + 0.06 * s, s, ry, rx, rz: 0 };
     }
     if (at === 'receipt') {
       // Phones: the terminal lies on its side, tilted, at the right edge with its body off screen, and the strip
       // feeds out to the left. Sized so the strip spans the screen width (to 16px from the left), capped so it fits
       // the box's height (.pos-side in styles.css is sized to leave room for it).
-      const px = Math.min((r.height * 0.9) / PW, (innerWidth - 16) / (SL + 0.5 * HEAD.h)); // CSS px per world unit
+      const px = Math.min((r.height * 0.9) / PW, (vw - 16) / (SL + 0.5 * HEAD.h)); // CSS px per world unit
       // A quarter turn exactly and only a slight turn in depth, so the receipt's lines stay level and evenly sized.
       const s = px * wpp, rz = Math.PI / 2;
       // The slot sits so half the printer head shows at the right edge (on a phone the strip then ends 16px from the left).
-      const slotX = (innerWidth / 2 - 0.5 * HEAD.h * px) * wpp, slotY = -(r.top + r.height / 2 - innerHeight / 2) * wpp;
+      const slotX = (vw / 2 - 0.5 * HEAD.h * px) * wpp, slotY = -(r.top + r.height / 2 - vh / 2) * wpp;
       return { x: slotX + Math.sin(rz) * SLOT_Y * s, y: slotY - Math.cos(rz) * SLOT_Y * s, s, ry: 0.07, rx: 0.05, rz };
     }
     const H = BODY.h + HEAD.h + 0.2; // the whole device, head included, with a little air
-    const s = Math.min((r.height * wpp * 0.92) / H, (r.width * wpp * 0.9) / 1.3, (innerHeight * wpp * 0.74) / H);
+    const s = Math.min((r.height * wpp * 0.92) / H, (r.width * wpp * 0.9) / 1.3, (vh * wpp * 0.74) / H);
     // Wide screens: when the box is taller than the screen, the device stays centred in the visible part of it.
     const half = (H * s) / wpp / 2;
-    const mid = narrow ? r.top + r.height / 2 : Math.min(Math.max(innerHeight / 2, r.top + half), r.bottom - half);
-    const y = -(mid - innerHeight / 2) * wpp;
+    const mid = narrow ? r.top + r.height / 2 : Math.min(Math.max(vh / 2, r.top + half), r.bottom - half);
+    const y = -(mid - vh / 2) * wpp;
     return { x, y, s, ry, rx, rz: 0 };
   };
 
@@ -604,12 +618,35 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
   const frame = (now: number) => {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    const wpp = (2 * camera.position.z * Math.tan((camera.fov * Math.PI) / 360)) / innerHeight; // world units per CSS px
+    const wpp = (2 * camera.position.z * Math.tan((camera.fov * Math.PI) / 360)) / vh; // world units per CSS px
 
     // Every laid-out anchor near the middle of the screen pulls the terminal toward its pose; the weights fade
     // smoothly with distance, so the terminal blends between chapters instead of snapping. Leftover weight
     // sends it off to the right.
     const narrow = NARROW.matches;
+    // Phones: dock the canvas over the box nearest the middle of the screen, but only once the box it is docked to
+    // has scrolled out of view (the same rule as the glue below), so it never moves while the terminal shows.
+    if (narrow) {
+      const dr = dockEl?.getBoundingClientRect();
+      if (!dr || !dr.height || dr.bottom < 0 || dr.top > innerHeight) {
+        let best: HTMLElement | null = null, bd = Infinity;
+        for (const el of anchors) {
+          const r = el.getBoundingClientRect();
+          const d = Math.abs(r.top + r.height / 2 - innerHeight / 2);
+          if (r.height && d < bd) ((best = el), (bd = d));
+        }
+        if (best && best !== dockEl) {
+          const r = best.getBoundingClientRect();
+          dockEl = best;
+          dockTop = scrollY + r.top + r.height / 2 - vh / 2;
+          host.style.top = `${dockTop}px`;
+        }
+      }
+    }
+    const oy = narrow ? dockTop - scrollY : 0; // the canvas's top on screen
+    const rel = (r: DOMRect): Box => ({ top: r.top - oy, bottom: r.bottom - oy, left: r.left, width: r.width, height: r.height });
+    // Where a pose's centre is on screen, for distances to the middle of the screen.
+    const onScreenY = (p: Pose) => oy + vh / 2 - p.y / wpp;
     // Phones use a shorter reach, so between two far-apart stops nothing pulls and the terminal is not dragged across the text.
     const reach = innerHeight * (narrow ? 0.7 : 1.1);
     const poses: { kind: AnchorKind; w: number; p: Pose }[] = [];
@@ -620,8 +657,8 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
       // Distance from the middle of the screen: of the box for the receipt close-up, of the device itself otherwise
       // (it stays centred in a tall box, so the box's own centre would make it let go too early).
       const kindOf = el.dataset['anchor'] as AnchorKind;
-      const p = poseFor(r, kindOf, wpp, narrow);
-      const d = kindOf === 'receipt' && !narrow ? Math.abs(r.top + r.height / 2 - innerHeight / 2) : Math.abs(p.y) / wpp;
+      const p = poseFor(rel(r), kindOf, wpp, narrow);
+      const d = kindOf === 'receipt' && !narrow ? Math.abs(r.top + r.height / 2 - innerHeight / 2) : Math.abs(onScreenY(p) - innerHeight / 2);
       const lin = Math.max(0, 1 - d / reach);
       if (!lin) continue;
       poses.push({ kind: kindOf, w: lin * lin * (3 - 2 * lin), p });
@@ -634,7 +671,8 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
     const blend = narrow ? [] : poses.filter((p) => !TURN[p.kind].glue);
     const lead = pick(poses), blendLead = pick(blend);
     // Any part of it in view: the device reaches about 1.4 of its scale from its centre in any direction.
-    const onScreen = rig.visible && Math.abs(cur.x) < (innerWidth / 2) * wpp + 1.4 * cur.s && Math.abs(cur.y) < (innerHeight / 2) * wpp + 1.4 * cur.s;
+    const cy = onScreenY(cur), m = (1.4 * cur.s) / wpp;
+    const onScreen = rig.visible && Math.abs(cur.x) < (vw / 2) * wpp + 1.4 * cur.s && cy > -m && cy < innerHeight + m;
     const glueLead = narrow || (lead && TURN[lead.kind].glue) ? lead : null;
     let glued: Pose | null = null, arrive = false;
     // While its glued box is still in view it stays there, whichever box now leads (in either scroll direction).
@@ -669,7 +707,7 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
     // Off-screen means past the nearest side edge by the terminal's own (scaled) width, however big it currently is.
     const offS = blendLead ? blendLead.p.s : cur.s;
     const side = (blendLead ? blendLead.p.x : cur.x) < 0 ? -1 : 1;
-    const off: Pose = { x: side * ((innerWidth / 2 + 60) * wpp + 1.6 * offS), y: blendLead ? blendLead.p.y : cur.y, s: offS, ry: 0.9 * side, rx: 0.1, rz: 0 };
+    const off: Pose = { x: side * ((vw / 2 + 60) * wpp + 1.6 * offS), y: blendLead ? blendLead.p.y : cur.y, s: offS, ry: 0.9 * side, rx: 0.1, rz: 0 };
     const sum = blend.reduce((a, b) => a + b.w, 0);
     const norm = Math.max(1, sum);
     const rest = 1 - Math.min(1, sum);
@@ -680,7 +718,10 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
       // Glued, it moves with its box exactly (like page content, no lag while scrolling); only its turn and size ease.
       cur[key] = arrive || (glued && (key === 'x' || key === 'y')) ? target[key] : cur[key] + (target[key] - cur[key]) * k;
     }
-    if (arrive) cur.s = 0.001; // it grows in at its new place
+    // It grows in at a new place. On phones, back at the same box it simply scrolls in with the page (the canvas is
+    // docked there), so it does not pulse every time the box leaves and comes back.
+    if (arrive) cur.s = narrow && gluedKind === lastGlued ? target.s : 0.001;
+    if (glued) lastGlued = gluedKind;
     // Parked off-screen with nothing pulling it back: hide it, clear the canvas once, and stop the loop.
     // A scroll or resize wakes it again.
     if (!poses.length && Math.abs(target.x - cur.x) < 0.01) {
