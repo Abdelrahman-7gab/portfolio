@@ -30,8 +30,9 @@ export const RECEIPT = {
     { label: 'Card top-ups', value: '1.19M', sub: true },
     { label: 'Cash top-ups', value: '227K', sub: true },
     { label: 'Returns', value: '101K', sub: true },
-    { label: 'People paying', value: '92K' },
+    { label: 'Users', value: '138K' }, // the students who paid (with a wristband or card)
     { label: 'Merchants', value: '254' },
+    { label: 'Countries', value: '10' },
     { label: 'Devices printing this', value: '1,700+' },
     { label: 'My commits', value: MY_COMMITS },
   ],
@@ -235,7 +236,7 @@ export const COPY = {
     kicker: 'Spare Payments · since March\u00a02024', // no lone "2024" on its own line
     title: 'What I’ve worked on,',
     mute: 'in numbers',
-    lead: `I helped build the payment system that has handled ${RECEIPT.lines[0].value} transactions since I joined. These are Spare’s own numbers.`,
+    lead: `I helped build the payment system that has handled ${RECEIPT.lines[0].value} transactions since I joined, and the receipt printing on its 1,700+ devices. These are Spare’s own numbers.`,
   },
   commits: {
     kicker: 'git log --author=me',

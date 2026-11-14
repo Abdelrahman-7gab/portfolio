@@ -6,7 +6,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 /* ---------- type (display sizes run a little wide in Mona Sans) */
 .hg-heading { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
 .hg-kicker { margin: 0; font: 500 12px/1 var(--font-mono); letter-spacing: .22em; text-transform: uppercase; color: var(--ink-2); }
-.hg-hero { font-family: var(--font-display); margin: 0; font-weight: 800; font-stretch: 112.5%; font-size: clamp(40px, min(11.5vw, 15svh), 140px); line-height: .92; letter-spacing: -.025em; text-wrap: balance; }
+.hg-hero { font-family: var(--font-display); margin: 0; font-weight: 800; font-stretch: 112.5%; font-size: clamp(28px, min(11.5vw, 15svh), 140px); line-height: .92; letter-spacing: -.025em; text-wrap: balance; }
 .hg-headline { font-family: var(--font-display); margin: 0; font-weight: 700; font-stretch: 112.5%; font-size: clamp(32px, min(5.8vw, 9svh), 82px); line-height: .98; letter-spacing: -.02em; text-wrap: balance; }
 .hg-headline.is-compact { font-size: clamp(30px, min(4.2vw, 7svh), 62px); } /* for a headline that shares its chapter with a big visual */
 .hg-heading.is-tight { gap: var(--space-4); }
@@ -41,7 +41,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 .hg-chip { font: 500 13px/1 var(--font-mono); padding: 10px 14px; border-radius: var(--radius-pill); border: 1px solid var(--border); background: transparent; color: var(--ink-2); }
 
 /* ---------- ledger rows: hairline-divided impact lines */
-.hg-ledger { display: grid; }
+.hg-ledger { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; }
 .hg-ledger.is-dense .hg-row { padding-block: var(--space-3); }
 .hg-row { display: flex; align-items: center; gap: var(--space-4); padding: 18px var(--space-3); margin: 0 calc(-1 * var(--space-3)); border-top: 1px solid var(--hairline); transition: background-color var(--dur-fast); }
 .hg-row:last-child { border-bottom: 1px solid var(--hairline); }
@@ -50,6 +50,12 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 .hg-row .t small { display: block; margin-top: 4px; font-weight: 400; font-size: 15px; letter-spacing: 0; color: var(--ink-2); }
 .hg-row .v { font: 600 16px/1 var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .hg-row .ok { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: var(--radius-pill); background: var(--fill); color: var(--on-fill); }
+/* Small phones: the figure wraps under itself ("1.19M / top-ups") rather than pushing the row past the screen. */
+@media (max-width: 420px) {
+  .hg-row { gap: var(--space-3); }
+  .hg-row .t { overflow-wrap: anywhere; }
+  .hg-row .v { white-space: normal; max-width: 7ch; text-align: right; line-height: 1.25; }
+}
 .hg-row .ok svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 [data-build] .hg-row { opacity: 0; transform: translateY(14px); transition: opacity .45s var(--ease-out), transform .45s var(--ease-out), background-color var(--dur-fast); }
 [data-build] .hg-row .ok { transform: scale(0); transition: transform .4s var(--ease-pop); }
@@ -99,11 +105,17 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 .hg-point p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
 .hg-span-item.open .hg-point { animation: hg-rise var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--i, 0) * 50ms); }
 @media (max-width: 560px) {
-  .hg-trace-axis, .hg-span { grid-template-columns: minmax(0, 1fr) auto; }
+  .hg-trace-axis, .hg-span { grid-template-columns: minmax(0, 1fr) 104px; } /* a fixed duration column keeps the years over the bars */
   .hg-trace-axis .who-h { display: none; }
-  .hg-trace-axis .ticks { grid-column: 1 / -1; }
+  .hg-trace-axis .ticks { grid-column: 1; }
   .hg-trace-axis .ticks span:nth-child(even) { display: none; } /* every other year, or the labels run together */
-  .hg-span .track { grid-column: 1 / -1; grid-row: 2; }
+  /* Phones: the name and role get the whole first row; the bar and the duration share the second. */
+  .hg-span { grid-template-areas: "who who" "track dur"; row-gap: var(--space-3); }
+  .hg-span .who { grid-area: who; }
+  .hg-span .track { grid-area: track; }
+  .hg-span .dur { grid-area: dur; }
+  .hg-entry { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+  .hg-entry > .hg-label { padding-left: calc(28px + var(--space-3)); } /* the years line up with the name, past the logo */
 }
 
 /* ---------- chapter chrome: brand, chapter index, counter, progress */
