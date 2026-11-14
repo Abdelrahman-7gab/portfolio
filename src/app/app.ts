@@ -9,13 +9,22 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { CHAPTERS, COMMITS, LINKS, PAYMENTS, RECEIPT, SPANS, STACK, TRACE } from './content';
+import {
+  CHAPTERS,
+  COMMITS,
+  COPY,
+  EDUCATION,
+  LINKS,
+  PAYMENTS,
+  RECEIPT,
+  SPANS,
+  STACK,
+  TRACE,
+} from './content';
 import type { Stage } from './stage-3d';
-import { NOW, duration, months, year } from './time';
+import { NOW, duration, monthYear, months, year } from './time';
 
-const pad = (n: number) => String(n).padStart(2, '0');
 const FIRST = SPANS[SPANS.length - 1].from; // the earliest span starts the career trace
-const FIRST_JOB = SPANS.filter((s) => !s.degree).at(-1)!.from; // the headline counts working years, not the degree
 const WORDS = [
   'Zero',
   'One',
@@ -39,10 +48,16 @@ const CAN_3D = !STILL && typeof window !== 'undefined' && 'WebGL2RenderingContex
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
-  host: { '(document:keydown)': 'onKey($event)', '[class.has-3d]': 'has3d()' },
+  host: {
+    '(document:keydown)': 'onKey($event)',
+    '[class.has-3d]': 'has3d()',
+    '[class.stage-ready]': 'stageReady()',
+  },
 })
 export class App {
   protected readonly links = LINKS;
+  protected readonly education = EDUCATION;
+  protected readonly copy = COPY;
   protected readonly chapters = CHAPTERS;
   protected readonly payments = PAYMENTS;
   protected readonly stack = STACK;
@@ -54,8 +69,8 @@ export class App {
   protected readonly nameLast = [...'Hegab'];
   protected readonly year = NOW[0];
   protected readonly careerStart = FIRST[0];
-  protected readonly careerYears =
-    WORDS[Math.floor(months(FIRST_JOB, NOW) / 12)] ?? Math.floor(months(FIRST_JOB, NOW) / 12);
+  private readonly yearsWorked = Math.floor(months(FIRST, NOW) / 12);
+  protected readonly careerYears = WORDS[this.yearsWorked] ?? this.yearsWorked;
 
   // The trace's x-axis runs from just before the first span to just after today.
   protected readonly start = Math.floor(year(FIRST) - 0.3);
@@ -70,6 +85,8 @@ export class App {
     a: year(s.from),
     b: year(s.to ?? NOW),
     dur: duration(months(s.from, s.to ?? NOW)),
+    // What a screen reader says for the role button: dates in words instead of bar positions and "2Y 9M".
+    label: `${s.name}, ${s.role}, ${monthYear(s.from)} to ${s.to ? monthYear(s.to) : 'now'}`,
   }));
 
   protected readonly current = signal(0);
@@ -79,6 +96,7 @@ export class App {
   private readonly email = viewChild<ElementRef<HTMLElement>>('email');
   protected readonly theme = signal<'dark' | 'light'>('dark');
   protected readonly has3d = signal(CAN_3D);
+  protected readonly stageReady = signal(false);
   private readonly stageHost = viewChild<ElementRef<HTMLElement>>('stage');
   private stage?: Stage;
 
@@ -99,8 +117,6 @@ export class App {
       };
     }),
   );
-  protected readonly counter = computed(() => pad(this.current() + 1));
-  protected readonly total = pad(CHAPTERS.length);
   protected readonly progress = computed(() => ((this.current() + 1) / CHAPTERS.length) * 100);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
@@ -128,7 +144,14 @@ export class App {
       const middle = new IntersectionObserver(
         (entries) =>
           entries.forEach(
-            (e) => e.isIntersecting && this.current.set(sections.indexOf(e.target as HTMLElement)),
+            // Read the section under the middle line directly: after a big jump the entries can arrive in any order.
+            () => {
+              const i = sections.findIndex((s) => {
+                const r = s.getBoundingClientRect();
+                return r.top <= innerHeight / 2 && r.bottom > innerHeight / 2;
+              });
+              if (i >= 0) this.current.set(i);
+            },
           ),
         { rootMargin: '-50% 0px -50% 0px' },
       );
@@ -174,6 +197,7 @@ export class App {
     try {
       const { mountStage } = await import('./stage-3d');
       this.stage = await mountStage(host, RECEIPT);
+      this.stageReady.set(true); // until now the page's own receipt stays visible in place of the 3D one
       this.stage.setTheme(this.theme());
     } catch {
       this.has3d.set(false); // WebGL failed after all: fall back to the CSS receipt and the one-column hero
@@ -183,32 +207,70 @@ export class App {
   // The hero name swells toward the cursor (Mona Sans weight and width axes). Letter centres are measured
   // once when the pointer enters, so the swelling itself never moves the targets it is measured against.
   // They are kept in page coordinates, so scrolling while hovering does not throw them off.
+  // On touch: a finger dragged along the name swells it the same way, and a tap sends a wave out from the finger.
   private letters: { el: HTMLElement; x: number; y: number; p: string }[] = [];
   private lensFrame = 0;
+  private touch = { x: 0, y: 0, t: 0 };
+  /** Sets one letter's swell (0-1), touching the style only when the rounded value changes. */
+  private swell(l: (typeof this.letters)[number], p: number) {
+    const v = p.toFixed(2);
+    if (v !== l.p) l.el.style.setProperty('--p', (l.p = v));
+  }
+  private measure(name: HTMLElement) {
+    this.letters = [...name.querySelectorAll<HTMLElement>('.ch')].map((el) => {
+      const r = el.getBoundingClientRect();
+      return { el, x: r.left + r.width / 2 + scrollX, y: r.top + r.height / 2 + scrollY, p: '0' };
+    });
+  }
   protected lensEnter(e: PointerEvent) {
     if (this.still || e.pointerType !== 'mouse') return;
-    this.letters = [...(e.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('.ch')].map(
-      (el) => {
-        const r = el.getBoundingClientRect();
-        return { el, x: r.left + r.width / 2 + scrollX, y: r.top + r.height / 2 + scrollY, p: '0' };
-      },
-    );
+    this.measure(e.currentTarget as HTMLElement);
+  }
+  protected lensLeave(e: PointerEvent) {
+    if (e.pointerType === 'mouse') this.lensOff(); // a finger also "leaves" when it lifts; that must not cut a wave short
+  }
+  protected touchDown(e: PointerEvent) {
+    if (this.still || e.pointerType === 'mouse') return;
+    this.measure(e.currentTarget as HTMLElement);
+    this.touch = { x: e.pageX, y: e.pageY, t: e.timeStamp };
+    this.lens(e);
+  }
+  protected touchUp(e: PointerEvent) {
+    if (e.pointerType === 'mouse' || !this.letters.length) return;
+    const tap =
+      e.timeStamp - this.touch.t < 350 &&
+      Math.hypot(e.pageX - this.touch.x, e.pageY - this.touch.y) < 12;
+    if (tap) this.wave(e.pageX);
+    else this.lensOff();
+  }
+  /** A swell that travels out from x through the letters, then settles. */
+  private wave(x: number) {
+    cancelAnimationFrame(this.lensFrame);
+    const t0 = performance.now();
+    const step = (now: number) => {
+      let moving = false;
+      for (const l of this.letters) {
+        const k = (now - t0 - Math.abs(l.x - x) * 1.4) / 460; // the further the letter, the later it swells
+        if (k < 1) moving = true;
+        this.swell(l, k > 0 && k < 1 ? Math.sin(Math.PI * k) : 0);
+      }
+      if (moving) this.lensFrame = requestAnimationFrame(step);
+      else this.letters = [];
+    };
+    this.lensFrame = requestAnimationFrame(step);
   }
   protected lens(e: PointerEvent) {
     if (!this.letters.length) return;
     cancelAnimationFrame(this.lensFrame);
     this.lensFrame = requestAnimationFrame(() => {
       for (const l of this.letters) {
-        const p = Math.max(0, 1 - Math.hypot(e.pageX - l.x, (e.pageY - l.y) * 1.6) / 190).toFixed(
-          2,
-        );
-        if (p !== l.p) l.el.style.setProperty('--p', (l.p = p)); // only touch letters whose value changed
+        this.swell(l, Math.max(0, 1 - Math.hypot(e.pageX - l.x, (e.pageY - l.y) * 1.6) / 190));
       }
     });
   }
   protected lensOff() {
     cancelAnimationFrame(this.lensFrame);
-    this.letters.forEach((l) => l.el.style.setProperty('--p', '0'));
+    this.letters.forEach((l) => this.swell(l, 0));
     this.letters = [];
   }
 
@@ -239,7 +301,8 @@ export class App {
       e.metaKey ||
       e.ctrlKey ||
       e.altKey ||
-      target.closest?.('input, textarea, [contenteditable]')
+      // Keys belong to whatever has focus: no chapter steps or theme toggle from a link, button or field.
+      target.closest?.('a, button, input, textarea, select, [contenteditable]')
     )
       return;
     // Only j/k and left/right step chapters. Up/down, page keys and Space keep scrolling normally, so tall chapters stay reachable.

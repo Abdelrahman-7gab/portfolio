@@ -152,7 +152,8 @@ export const STACK = [
 export const SPANS = [
   {
     name: 'Spare Payments',
-    role: 'Full-stack engineer',
+    logo: 'spare',
+    role: 'Full-stack software engineer',
     from: [2024, 3] as const,
     to: null,
     points: [
@@ -180,6 +181,7 @@ export const SPANS = [
   },
   {
     name: 'Alfan',
+    logo: 'alfan',
     role: 'Frontend engineer · UAE, remote',
     from: [2023, 1] as const,
     to: [2024, 4] as const,
@@ -197,6 +199,7 @@ export const SPANS = [
   },
   {
     name: 'TensorGraph.io',
+    logo: 'tensorgraph',
     role: 'Software engineer · part-time',
     from: [2021, 8] as const,
     to: [2023, 1] as const,
@@ -212,18 +215,52 @@ export const SPANS = [
       },
     ],
   },
-  {
-    name: 'German University in Cairo',
-    role: 'B.E. Computer Science and Engineering · TA',
-    degree: true,
-    from: [2018, 10] as const,
-    to: [2023, 6] as const,
-    points: [
-      { area: 'Degree', text: 'B.E. in Computer Science and Engineering, 2018 — 2023.' },
-      {
-        area: 'Teaching',
-        text: 'Junior teaching assistant alongside my own studies, 2020 — 2021.',
-      },
-    ],
-  },
 ];
+
+/** Education sits under the career trace, not on it: the trace is work only. */
+export const EDUCATION = {
+  school: 'German University in Cairo',
+  degree: 'B.E. Computer Science and Engineering',
+  years: '2018 — 2023',
+};
+
+/** Chapter headings: kicker, headline (with its muted second half) and intro. The career headline is preceded by
+ *  the computed number of years, and its kicker by the computed start year (app.ts). */
+export const COPY = {
+  hello: {
+    kicker: 'Full-stack software engineer',
+    lead: 'Payments, refunds, POS apps, observability and more. I build what happens after a student taps a Spare wristband to pay.',
+  },
+  numbers: {
+    kicker: 'Spare Payments · since March\u00a02024', // no lone "2024" on its own line
+    title: 'What I’ve worked on,',
+    mute: 'in numbers',
+    lead: `I helped build the payment system that has handled ${RECEIPT.lines[0].value} transactions since I joined. These are Spare’s own numbers.`,
+  },
+  commits: {
+    kicker: 'git log --author=me',
+    title: `${COMMITS.total} commits,`,
+    mute: 'by area',
+    lead: `Across ${COMMITS.repos} of Spare’s repositories, grouped by the scope in each commit message.`,
+  },
+  payments: {
+    kicker: 'Payments',
+    title: 'Payments',
+    mute: 'and refunds',
+    lead: 'I built direct payments and refunds, wired in the card gateways, and wrote the reports that finance checks against the dashboard.',
+  },
+  tracing: {
+    kicker: 'Observability · OpenTelemetry',
+    title: 'Tracing',
+    mute: 'slow requests',
+    lead: 'I added OpenTelemetry tracing and structured logs to Spare’s core services, so every slow request shows exactly which call made it slow.',
+    hint: 'hover, tap or focus a span to see its attributes',
+  },
+  career: {
+    kicker: 'Career',
+    title: 'years',
+    mute: 'of work',
+    lead: 'Two startups, then full-stack at Spare. Open a role to see what I did there.',
+  },
+  contact: { kicker: 'Contact', title: 'Get in touch' },
+};

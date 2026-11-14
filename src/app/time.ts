@@ -8,5 +8,22 @@ export const NOW: YM = [now.getFullYear(), now.getMonth() + 1];
 export const year = ([y, m]: YM) => y + (m - 1) / 12;
 /** Months between two year-months, counting both ends, like LinkedIn. */
 export const months = (a: YM, b: YM) => b[0] * 12 + b[1] - (a[0] * 12 + a[1]) + 1;
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+/** "March 2024". */
+export const monthYear = ([y, m]: YM) => `${MONTHS[m - 1]} ${y}`;
 /** "2Y 9M", "1Y", "11M". */
-export const duration = (n: number) => (n >= 12 ? `${Math.floor(n / 12)}Y ` : '') + (n % 12 ? `${n % 12}M` : '');
+export const duration = (n: number) =>
+  (n >= 12 ? `${Math.floor(n / 12)}Y ` : '') + (n % 12 ? `${n % 12}M` : '');

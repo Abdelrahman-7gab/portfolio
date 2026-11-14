@@ -51,6 +51,7 @@ main { position: relative; z-index: 1; }
 
 /* ---------- hello: the name's letters rise in, then swell toward the cursor; the terminal sits beside it */
 .hello { grid-template-columns: minmax(0, 1fr); }
+.name { touch-action: pan-y pinch-zoom; } /* a sideways finger drag swells the letters; scrolling and zoom still work */
 .name .word { display: inline-block; white-space: nowrap; }
 .name .ch { display: inline-block; --p: 0; font-weight: calc(800 + var(--p) * 100); font-stretch: calc(112.5% + var(--p) * 12.5%); transform: translateY(calc(var(--p) * -0.04em));
   transition: font-weight var(--dur-slow) var(--ease-out), font-stretch var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
@@ -74,11 +75,16 @@ main { position: relative; z-index: 1; }
 
 /* ---------- receipt: thermal paper that prints out of a slot (the CSS version; the 3D one replaces it) */
 .printer { justify-self: center; width: min(100%, 360px); display: grid; justify-items: center; }
-.slot { width: calc(100% + 32px); height: 14px; border-radius: var(--radius-pill); background: var(--surface-3); box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.35); position: relative; z-index: 1; }
+/* The printer head, in the 3D terminal's graphite (the same in both themes, like the paper), with the dark slot the paper leaves through. */
+.slot {
+  --head-hi: #4b5159; --head-lo: #32363c; --slot-gap: #0d0e10; /* the 3D terminal's graphite head and slot (stage-3d) */
+  width: calc(100% + 28px); height: 34px; border-radius: var(--radius-md) var(--radius-md) var(--radius-sm) var(--radius-sm); position: relative; z-index: 1;
+  background: linear-gradient(var(--head-hi), var(--head-lo)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 12px 28px rgba(0, 0, 0, 0.28); }
+.slot::after { content: ""; position: absolute; left: var(--space-4); right: var(--space-4); bottom: 7px; height: 4px; border-radius: var(--radius-pill); background: var(--slot-gap); }
 .receipt {
   --z: 10px;
   --paper: #f6f6f2; --paper-ink: #1c1c1a; --paper-muted: #6b6b66; --paper-sub: #55554f; --paper-rule: #9a9a94; /* thermal paper: same in both themes */
-  width: 100%; margin-top: -7px; padding: 30px 22px 34px;
+  width: 100%; margin-top: -11px; padding: 30px 22px 34px; /* tucked under the head, so it leaves through the slot */
   background: var(--paper); color: var(--paper-ink);
   font: 500 13px/1.65 var(--font-mono); letter-spacing: .02em;
   mask:
@@ -102,7 +108,21 @@ main { position: relative; z-index: 1; }
 [data-build] .receipt { clip-path: inset(0 0 100% 0); transform: translateY(-24px); transition: clip-path 1.2s var(--ease-out) .2s, transform 1.2s var(--ease-out) .2s; }
 [data-build].is-on .receipt { clip-path: inset(0 0 -40px 0); transform: none; }
 .has-3d .printer { width: min(100%, 440px); height: min(70svh, 620px); }
-.has-3d .printer > .slot, .has-3d .printer > .receipt { visibility: hidden; }
+/* Once the 3D terminal is up it prints the receipt; the page's copy stays in place, invisible, so screen readers
+   still read it. Until then (a slow device) the page's own printer shows. */
+.stage-ready .printer > .slot { visibility: hidden; }
+.stage-ready .printer > .receipt { opacity: 0; }
+/* The commits chapter is opaque from just below its top, so the receipt close-up's body (which runs off below the
+   paper) and its exit tuck behind it instead of sitting over the commit counts. */
+.has-3d #commits { background: linear-gradient(transparent, var(--bg) 120px); }
+/* Boxes the 3D terminal moves to (stage-3d anchors); only laid out when the 3D scene is on. */
+.pay-anchor, .pos-side { display: none; }
+/* Payments: text and ledger side by side; with the 3D scene the terminal gets its own column on the left,
+   like the hero, and the heading sits above the ledger on the right. */
+.has-3d .pay > .hg-heading { grid-area: head; }
+.has-3d .pay > .hg-ledger { grid-area: ledger; }
+.has-3d .pay { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); grid-template-areas: "pos head" "pos ledger"; row-gap: var(--space-5); align-content: center; }
+.has-3d .pay-anchor { display: block; grid-area: pos; align-self: stretch; min-height: min(62svh, 540px); } /* spans both rows: the terminal is centred on the whole chapter */
 
 /* ---------- commits: where the commits went (name and count, then the bar) */
 .areas { display: grid; gap: var(--space-2); min-width: 0; }
@@ -154,15 +174,16 @@ main { position: relative; z-index: 1; }
   .chapter { padding-block: var(--space-8); }
   .split { grid-template-columns: minmax(0, 1fr); }
   .has-3d .hello { grid-template-columns: minmax(0, 1fr); }
-  /* One column: the terminal sits under the hero text, and the commits chapter is opaque so the
-     terminal's body, which runs off below the receipt, stays tucked behind it. */
+  /* One column (phones): the terminal sits whole in the hero and in payments and scrolls with the page. */
   .has-3d .hero-anchor { height: min(34svh, 280px); }
-  .has-3d #commits { background: linear-gradient(transparent, var(--bg) 96px); }
-  /* The box takes the paper's proportions (stage-3d: PW / (PH + 0.12), PH = PW * TH / TW), so the paper fills it. */
-  .has-3d .printer { height: auto; aspect-ratio: 0.62; min-height: 0; overflow: hidden; } /* the hidden CSS receipt must not stretch it */
+  .has-3d .pay { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "pos" "ledger"; row-gap: 0; }
+  .has-3d .pay-anchor { height: min(40svh, 330px); min-height: 0; }
+  /* Phones: the receipt is the 3D terminal on its side at the screen edge, feeding the strip across (stage-3d). */
+  .has-3d .printer { display: none; }
+  /* Tall enough for the strip, which stage-3d sizes to the screen width (strip height ≈ 1.2 × width at 375px). */
+  .has-3d .pos-side { display: block; height: min(128vw, 560px); }
 }
 @media (max-width: 640px) {
-  .hg-counter { display: none; }
   /* Phones: chapters take the height of their content; only the hero fills the screen. */
   .chapter { min-height: 0; padding-block: calc(var(--space-8) + var(--space-5)) var(--space-7); }
   #hello { min-height: 100svh; }

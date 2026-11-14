@@ -8,6 +8,8 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 .hg-kicker { margin: 0; font: 500 12px/1 var(--font-mono); letter-spacing: .22em; text-transform: uppercase; color: var(--ink-2); }
 .hg-hero { font-family: var(--font-display); margin: 0; font-weight: 800; font-stretch: 112.5%; font-size: clamp(40px, min(11.5vw, 15svh), 140px); line-height: .92; letter-spacing: -.025em; text-wrap: balance; }
 .hg-headline { font-family: var(--font-display); margin: 0; font-weight: 700; font-stretch: 112.5%; font-size: clamp(32px, min(5.8vw, 9svh), 82px); line-height: .98; letter-spacing: -.02em; text-wrap: balance; }
+.hg-headline.is-compact { font-size: clamp(30px, min(4.2vw, 7svh), 62px); } /* for a headline that shares its chapter with a big visual */
+.hg-heading.is-tight { gap: var(--space-4); }
 .hg-hero .mute, .hg-headline .mute { color: var(--ink-3); }
 .hg-lead { margin: 0; max-width: 34ch; font-size: clamp(17px, 1.8vw, 24px); line-height: 1.38; letter-spacing: -.01em; color: var(--ink-2); }
 .hg-lead.is-wide { max-width: 64ch; }
@@ -30,6 +32,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 .hg-btn-ghost { background: transparent; border-color: transparent; color: var(--ink-2); padding: 0 14px; }
 .hg-btn-ghost:hover { color: var(--ink); }
 .hg-iconbtn { width: 40px; height: 40px; display: inline-grid; place-items: center; border-radius: var(--radius-pill); border: 1px solid var(--border); background: transparent; color: var(--ink-2); font: 600 14px/1 var(--font-mono); cursor: pointer; transition: color var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast) var(--ease-out); }
+.hg-iconbtn .i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .hg-iconbtn:hover { color: var(--ink); border-color: var(--border-strong); }
 .hg-iconbtn:active { transform: scale(.94); }
 
@@ -39,6 +42,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 
 /* ---------- ledger rows: hairline-divided impact lines */
 .hg-ledger { display: grid; }
+.hg-ledger.is-dense .hg-row { padding-block: var(--space-3); }
 .hg-row { display: flex; align-items: center; gap: var(--space-4); padding: 18px var(--space-3); margin: 0 calc(-1 * var(--space-3)); border-top: 1px solid var(--hairline); transition: background-color var(--dur-fast); }
 .hg-row:last-child { border-bottom: 1px solid var(--hairline); }
 .hg-row:hover { background: var(--surface); }
@@ -55,17 +59,25 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 /* ---------- trace: the career as a span waterfall of clickable cards. The container sets --start/--end and each
    item --a/--b (decimal years) and --i; an open card shows its points. */
 .hg-trace { --range: calc(var(--end) - var(--start)); display: grid; gap: var(--space-2); }
-.hg-trace-axis, .hg-span { display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr) 120px; gap: var(--space-4); align-items: center; }
+.hg-trace-axis, .hg-span { display: grid; grid-template-columns: minmax(150px, 270px) minmax(0, 1fr) 120px; gap: var(--space-4); align-items: center; }
 .hg-trace-axis { padding: 0 var(--space-3) var(--space-3); }
 .hg-trace-axis .ticks { position: relative; height: 14px; }
 .hg-trace-axis .ticks span { position: absolute; left: calc((var(--y) - var(--start)) / var(--range) * 100%); transform: translateX(-50%); }
+.hg-trace-axis .ticks span:first-child { transform: none; } /* the first year starts at the edge, not before it */
 .hg-span-item { border-radius: var(--radius-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--hairline); transition: box-shadow var(--dur-fast); }
 .hg-span-item:hover { box-shadow: inset 0 0 0 1px var(--border-strong); }
 .hg-span-item.open { box-shadow: inset 0 0 0 1px var(--border); }
 .hg-span { width: 100%; padding: var(--space-4) var(--space-3); border: 0; border-radius: var(--radius-md); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.hg-span .who { min-width: 0; }
-.hg-span .who b { display: block; font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: -.015em; }
-.hg-span .who .hg-label { display: block; margin-top: 2px; }
+.hg-span .who, .hg-entry .who { min-width: 0; display: flex; align-items: center; gap: var(--space-3); }
+.hg-span .who > span, .hg-entry .who > span { min-width: 0; }
+/* A company mark beside a name: one colour, follows the theme. */
+.hg-logo { width: 28px; height: 28px; flex: none; color: var(--ink-2); font-family: var(--font-display); }
+.hg-span .who b, .hg-entry .who b { display: block; font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: -.015em; }
+.hg-span .who .hg-label, .hg-entry .who .hg-label { display: block; margin-top: 2px; }
+/* A plain, non-clickable entry under a trace (education): same type as a span card, quieter frame. */
+.hg-entries { display: grid; gap: var(--space-3); }
+.hg-entry { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-3); border-radius: var(--radius-md); box-shadow: inset 0 0 0 1px var(--hairline); }
+.hg-entry > .hg-label { flex: none; }
 .hg-span .track { position: relative; height: 10px; border-radius: var(--radius-pill); background: var(--surface-3); }
 .hg-span .bar { position: absolute; top: 0; bottom: 0; left: calc((var(--a) - var(--start)) / var(--range) * 100%); width: calc((var(--b) - var(--a)) / var(--range) * 100%); border-radius: var(--radius-pill); background: var(--border-strong); transform-origin: left; transition: background-color var(--dur-base), transform .9s var(--ease-out); }
 .hg-span:hover .bar, .hg-span-item.open .bar { background: var(--ink); }
@@ -90,11 +102,12 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
   .hg-trace-axis, .hg-span { grid-template-columns: minmax(0, 1fr) auto; }
   .hg-trace-axis .who-h { display: none; }
   .hg-trace-axis .ticks { grid-column: 1 / -1; }
+  .hg-trace-axis .ticks span:nth-child(even) { display: none; } /* every other year, or the labels run together */
   .hg-span .track { grid-column: 1 / -1; grid-row: 2; }
 }
 
 /* ---------- chapter chrome: brand, chapter index, counter, progress */
-.hg-brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; }
+.hg-brand { display: inline-flex; align-items: center; min-height: 44px; gap: 12px; color: var(--ink); text-decoration: none; }
 .hg-brand .mark { font: 800 20px/1 var(--font-display); font-stretch: 106%; letter-spacing: -.06em; }
 .hg-toc { display: flex; gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
 .hg-toc a { position: relative; display: block; padding: 12px 0 4px; font: 500 11px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); text-decoration: none; transition: color var(--dur-fast); }
