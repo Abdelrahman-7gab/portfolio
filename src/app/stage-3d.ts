@@ -5,7 +5,7 @@
 import {
   ACESFilmicToneMapping, AmbientLight, CanvasTexture, Color, DirectionalLight, DoubleSide, Group, Mesh,
   MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, PMREMGenerator,
-  LinearFilter, SRGBColorSpace, Scene, TorusGeometry, WebGLRenderer,
+  LinearFilter, SRGBColorSpace, Scene, WebGLRenderer, BufferGeometry, Float32BufferAttribute,
 } from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -156,6 +156,46 @@ function drawReceipt(g: CanvasRenderingContext2D, data: ReceiptData, w = TW, tor
   text(g, data.through, w / 2, (y += 34), 19, 500, MUTED, 'center');
   barcode(g, (y += 24), 70, w);
 }
+
+/** The wristband as one thin piece of silicone (like Spare's own): a strap round an oval wrist whose outline is a
+ *  superellipse, so its front is a flat face, a little wider where the Spare mark sits. Front is +z. */
+const BAND = { a: 0.36, b: 0.27, p: 2.6 }; // half width, half depth, superellipse exponent of the wrist outline
+function bandGeometry(U = 220, V = 24) {
+  const pos: number[] = [], idx: number[] = [];
+  const pw = (v: number) => Math.sign(v) * Math.abs(v) ** (2 / BAND.p);
+  for (let i = 0; i <= U; i++) {
+    const th = (i / U) * Math.PI * 2;
+    let d = Math.abs(th - Math.PI / 2); // angular distance from the front
+    d = Math.min(d, Math.PI * 2 - d);
+    const f = Math.exp(-((d / 0.55) ** 2)); // 1 at the face, 0 round the back
+    const h = 0.26 + 0.1 * f, t = 0.035 + 0.02 * f; // strap width along the wrist, and thickness
+    const cx = BAND.a * pw(Math.cos(th)), cz = BAND.b * pw(Math.sin(th));
+    // Outward direction, from the outline's tangent.
+    const e = 1e-3;
+    const tx = BAND.a * pw(Math.cos(th + e)) - BAND.a * pw(Math.cos(th - e));
+    const tz = BAND.b * pw(Math.sin(th + e)) - BAND.b * pw(Math.sin(th - e));
+    const tl = Math.hypot(tx, tz) || 1, nx = tz / tl, nz = -tx / tl;
+    for (let j = 0; j <= V; j++) {
+      const ph = (j / V) * Math.PI * 2;
+      // A squarish section with soft edges, like moulded silicone.
+      const sx = Math.sign(Math.cos(ph)) * Math.abs(Math.cos(ph)) ** 0.4;
+      const sy = Math.sign(Math.sin(ph)) * Math.abs(Math.sin(ph)) ** 0.4;
+      pos.push(cx + (nx * sx * t) / 2, (sy * h) / 2, cz + (nz * sx * t) / 2);
+    }
+  }
+  for (let i = 0; i < U; i++)
+    for (let j = 0; j < V; j++) {
+      const a = i * (V + 1) + j, b = a + V + 1;
+      idx.push(a, a + 1, b, b, a + 1, b + 1);
+    }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  return geo;
+}
+/** The band's front face, from its centre (see bandGeometry). */
+const BAND_FACE = BAND.b + 0.055 / 2;
 
 /** The Spare mark: two slanted pieces with a thin diagonal gap between them, in Spare's cyan. */
 function drawSpareMark(g: CanvasRenderingContext2D) {
@@ -336,30 +376,26 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
   shadow.position.set(0.22, -0.28, -0.9);
   terminal.add(shadow, body, head, slot, bezel, screen, glass, homeKey, lens, power, volume);
 
-  // A Spare wristband for the payments chapter: a black silicone strap with a raised module carrying the cyan
-  // Spare mark. It swings in, taps the screen and leaves. The wrist runs up and down; the module faces the viewer.
-  const silicone = new MeshPhysicalMaterial({ color: new Color('#16171a'), roughness: 0.62, clearcoat: 0.25, clearcoatRoughness: 0.5, envMapIntensity: 1.2 });
+  // A Spare wristband for the payments chapter: one thin moulded strap (bandGeometry) with the Spare mark on its flat
+  // face. It swings in, taps the screen and leaves. The wrist runs up and down; the face (and the mark) faces the viewer.
+  const silicone = new MeshPhysicalMaterial({ color: new Color('#16191c'), roughness: 0.72, clearcoat: 0.2, clearcoatRoughness: 0.55, envMapIntensity: 0.9, side: DoubleSide });
   const band = new Group();
-  const R = 0.36;
-  const strapGeo = new TorusGeometry(R, 0.045, 16, 72);
-  strapGeo.rotateX(Math.PI / 2); // loop around the vertical wrist
-  strapGeo.scale(1, 3.4, 1); // a flat strap about as wide as the module is tall
-  const module = new Mesh(new RoundedBoxGeometry(0.6, 0.36, 0.1, 6, 0.045), silicone);
-  module.position.z = R + 0.03;
   const logoCanvas = document.createElement('canvas');
   logoCanvas.width = logoCanvas.height = 256;
   drawSpareMark(logoCanvas.getContext('2d')!);
   const logoTex = new CanvasTexture(logoCanvas);
   logoTex.colorSpace = SRGBColorSpace;
-  const logo = new Mesh(new PlaneGeometry(0.17, 0.17), new MeshBasicMaterial({ map: logoTex, transparent: true, toneMapped: false }));
-  logo.position.z = R + 0.03 + 0.051;
-  band.add(new Mesh(strapGeo, silicone), module, logo);
+  const logo = new Mesh(new PlaneGeometry(0.13, 0.13), new MeshBasicMaterial({ map: logoTex, transparent: true, opacity: 0.85, toneMapped: false }));
+  logo.position.z = BAND_FACE + 0.002;
+  band.add(new Mesh(bandGeometry(), silicone), logo);
   band.visible = false;
   terminal.add(band);
   // Its path in the terminal's own space, around a tap just in front of the screen: [from, in, out, to]. Wide screens
   // keep it within the terminal's column (up from below and in front, away to the upper left); phones use the open
   // right side of the screen.
-  const BAND_TAP = [0.04, 0.1, BODY.d / 2 + R + 0.12];
+  // The tap stops at the glass: the band's centre sits far enough out that, turned as it is, its back edge (and the
+  // little press) never reach the screen.
+  const BAND_TAP = [0.04, 0.1, BODY.d / 2 + 0.42];
   const BAND_PATH = {
     wide: [[0.6, -1.05, 1.5], [0.55, -0.45, 1.15], [-0.3, 0.5, 0.95], [-0.6, 0.95, 1.1]],
     narrow: [[1.2, -0.5, 1.2], [0.85, -0.2, 1.05], [0.7, 0.45, 1.0], [1.25, 0.75, 1.1]],
@@ -470,7 +506,7 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
   // leaves, and a moment later the refund. It starts once the terminal has settled in its place.
   let payStart = -1;
   const PAY = { settle: 700, tap: 1300, approve: 1450, leave: 1750, gone: 2800, refund: 4300, loop: 7600 };
-  const ROT_FROM = [0.75, -0.6, 0.15], ROT_TAP = [0.25, -0.45, 0.1], ROT_TO = [0.45, -0.85, 0.25];
+  const ROT_FROM = [0.35, -0.55, 0.12], ROT_TAP = [0.15, -0.4, 0.06], ROT_TO = [0.3, -0.75, 0.2];
   const inOut = (x: number) => ((x = Math.min(1, Math.max(0, x))), x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
   const mix = (a: number[], b: number[], k: number) => a.map((v, i) => v + (b[i] - v) * k);
   const curve = (a: number[], c: number[], b: number[], k: number) => mix(mix(a, c, k), mix(c, b, k), k); // quadratic Bézier
@@ -486,7 +522,7 @@ export async function mountStage(host: HTMLElement, data: ReceiptData): Promise<
       rot = mix(ROT_FROM, ROT_TAP, k);
       grow = Math.min(1, t / 350);
     } else if (t < PAY.leave) {
-      p = [BAND_TAP[0], BAND_TAP[1], BAND_TAP[2] - 0.04 * Math.sin((Math.PI * (t - PAY.tap)) / (PAY.leave - PAY.tap))]; // a gentle press
+      p = [BAND_TAP[0], BAND_TAP[1], BAND_TAP[2] - 0.025 * Math.sin((Math.PI * (t - PAY.tap)) / (PAY.leave - PAY.tap))]; // a gentle press
       rot = ROT_TAP;
     } else {
       const k = inOut((t - PAY.leave) / (PAY.gone - PAY.leave));
