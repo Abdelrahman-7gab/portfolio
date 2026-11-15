@@ -159,6 +159,10 @@ export const SPANS = [
     to: null,
     points: [
       {
+        area: 'Team',
+        text: 'One of 3–5 engineers, depending on the period, so I worked across the whole product.',
+      },
+      {
         area: 'Payments',
         text: 'Payment, refund and gateway flows, plus Partner Redirect for third-party apps.',
       },

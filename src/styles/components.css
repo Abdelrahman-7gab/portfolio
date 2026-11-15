@@ -100,7 +100,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 .hg-span-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--dur-slow) var(--ease-out); }
 .hg-span-item.open .hg-span-panel { grid-template-rows: 1fr; }
 .hg-span-panel > * { min-height: 0; overflow: hidden; }
-.hg-points { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--space-3); margin: 6px 0 var(--space-5); padding: 0 var(--space-4); }
+.hg-points { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(max(210px, calc((100% - 2 * var(--space-3)) / 3)), 1fr)); gap: var(--space-3); margin: 6px 0 var(--space-5); padding: 0 var(--space-4); }
 .hg-point { display: grid; gap: var(--space-2); align-content: start; padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface-2); }
 .hg-point p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
 .hg-span-item.open .hg-point { animation: hg-rise var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--i, 0) * 50ms); }
